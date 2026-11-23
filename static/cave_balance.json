@@ -1,0 +1,4077 @@
+{
+  "screened": 146,
+  "screen_seed": 20331853,
+  "holdout_seeds": [
+    20341826,
+    20351850
+  ],
+  "screening_players": 400,
+  "confirmation_players": 1000,
+  "preset_board": {
+    "rows": [
+      "....S.",
+      "....S#",
+      ".M..M.",
+      "F..#..",
+      "..M...",
+      ".M...F",
+      "....S.",
+      "###MS.",
+      "#.#F.M",
+      "....#."
+    ],
+    "gates": [
+      4,
+      0,
+      4
+    ],
+    "shop_detours": false
+  },
+  "preset_map": "Tested snake",
+  "policies": {
+    "Mining": {
+      "route_policy": 1,
+      "max_zone": 2,
+      "gear_priority": 1
+    },
+    "Gear": {
+      "route_policy": 2,
+      "max_zone": 3,
+      "gear_priority": 4
+    },
+    "Deep": {
+      "route_policy": 3,
+      "max_zone": 3,
+      "gear_priority": 2
+    }
+  },
+  "selected": "Refined 3",
+  "preset": {
+    "boss_start": 11,
+    "boss_threshold": 3,
+    "retreat_start": 14,
+    "adaptive_retreat": 1,
+    "retreat_slack": 1,
+    "battery_price": 4,
+    "blade_price": 6,
+    "boots_price": 4,
+    "charm_price": 5,
+    "climbing_price": 2,
+    "flashlight_price": 3,
+    "harness_price": 4,
+    "map_price": 3,
+    "p_enhance": 10,
+    "p_monster": 30,
+    "p_treasure": 30,
+    "pack_price": 1,
+    "pack_protection": 1,
+    "pick_price": 3,
+    "deep_cache_loot": 6,
+    "route_policy": 3,
+    "max_zone": 3,
+    "gear_priority": 2
+  },
+  "confirmation": [
+    {
+      "label": "Baseline",
+      "settings": {
+        "boots_price": 3,
+        "flashlight_price": 3,
+        "climbing_price": 5,
+        "pick_price": 5,
+        "pack_price": 4,
+        "blade_price": 6,
+        "charm_price": 6,
+        "battery_price": 8,
+        "map_price": 4,
+        "harness_price": 5,
+        "p_treasure": 25.0,
+        "p_monster": 25.0,
+        "p_enhance": 25.0
+      },
+      "summary": {
+        "scores": {
+          "Mining": 9.304,
+          "Gear": 12.337,
+          "Deep": 9.43125
+        },
+        "survivor_scores": {
+          "Mining": 11.929713127166123,
+          "Gear": 15.329860841035197,
+          "Deep": 13.085575568573374
+        },
+        "viability_ratio": 0.7541541703817785,
+        "deep_lead": -2.2442852724618234,
+        "escape": 76.78333333333333,
+        "escape_by_policy": {
+          "Mining": 77.825,
+          "Gear": 80.4,
+          "Deep": 72.125
+        },
+        "gear_use": {
+          "Boots": 48.84166666666667,
+          "Flashlight": 46.03333333333333,
+          "Climbing Kit": 14.175,
+          "Mining Pick": 17.6,
+          "Padded Pack": 17.575,
+          "Cave Blade": 11.066666666666666,
+          "Prospector Charm": 7.908333333333333,
+          "Spare Battery": 1.95,
+          "Trail Map": 14.65,
+          "Safety Harness": 5.325
+        },
+        "gear_owned": {
+          "Boots": 48.84166666666667,
+          "Flashlight": 46.21666666666667,
+          "Climbing Kit": 17.183333333333334,
+          "Mining Pick": 20.291666666666668,
+          "Padded Pack": 22.433333333333334,
+          "Cave Blade": 12.841666666666667,
+          "Prospector Charm": 9.641666666666666,
+          "Spare Battery": 1.9833333333333334,
+          "Trail Map": 18.383333333333333,
+          "Safety Harness": 5.958333333333333
+        },
+        "gear_spread": 46.891666666666666,
+        "card_rates": {
+          "Treasure": 25.03815692667234,
+          "Monster": 25.04536995628904,
+          "Enhancement": 25.214731891689148,
+          "Nothing": 24.701741225349473
+        },
+        "empty_rate": 21.749880985011323
+      },
+      "trials": [
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Mining",
+          "escape_rate": 77.7,
+          "avg_score": 7.806,
+          "avg_score_survivors": 10.046332046332047,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 22.3,
+          "avg_mine_actions": 7.695,
+          "avg_farm_actions": 1.126,
+          "card_counts": {
+            "Treasure": 6867,
+            "Monster": 6866,
+            "Enhancement": 6932,
+            "Nothing": 6702
+          },
+          "empty_draws": 5873,
+          "equipment": {
+            "Boots": [
+              42.1,
+              42.1
+            ],
+            "Flashlight": [
+              32.2,
+              31.5
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              39.9,
+              33.8
+            ],
+            "Padded Pack": [
+              38.4,
+              29.3
+            ],
+            "Cave Blade": [
+              17.8,
+              14.2
+            ],
+            "Prospector Charm": [
+              20.9,
+              15.5
+            ],
+            "Spare Battery": [
+              1.4,
+              1.4
+            ],
+            "Trail Map": [
+              6.3,
+              5.0
+            ],
+            "Safety Harness": [
+              0.8,
+              0.6
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Gear",
+          "escape_rate": 79.6,
+          "avg_score": 12.081,
+          "avg_score_survivors": 15.17713567839196,
+          "zone3_rate": 53.0,
+          "cache_claim_rate": 37.2,
+          "boss_death_rate": 20.4,
+          "avg_mine_actions": 7.428,
+          "avg_farm_actions": 1.728,
+          "card_counts": {
+            "Treasure": 7767,
+            "Monster": 7717,
+            "Enhancement": 7875,
+            "Nothing": 7629
+          },
+          "empty_draws": 6691,
+          "equipment": {
+            "Boots": [
+              55.6,
+              55.6
+            ],
+            "Flashlight": [
+              53.4,
+              52.8
+            ],
+            "Climbing Kit": [
+              20.9,
+              13.7
+            ],
+            "Mining Pick": [
+              16.4,
+              13.9
+            ],
+            "Padded Pack": [
+              22.0,
+              17.5
+            ],
+            "Cave Blade": [
+              11.5,
+              9.4
+            ],
+            "Prospector Charm": [
+              6.7,
+              4.5
+            ],
+            "Spare Battery": [
+              1.7,
+              1.7
+            ],
+            "Trail Map": [
+              25.6,
+              21.2
+            ],
+            "Safety Harness": [
+              9.3,
+              8.6
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Deep",
+          "escape_rate": 70.2,
+          "avg_score": 9.435,
+          "avg_score_survivors": 13.44017094017094,
+          "zone3_rate": 54.1,
+          "cache_claim_rate": 48.8,
+          "boss_death_rate": 29.8,
+          "avg_mine_actions": 1.392,
+          "avg_farm_actions": 2.475,
+          "card_counts": {
+            "Treasure": 5579,
+            "Monster": 5511,
+            "Enhancement": 5620,
+            "Nothing": 5399
+          },
+          "empty_draws": 4707,
+          "equipment": {
+            "Boots": [
+              37.3,
+              37.3
+            ],
+            "Flashlight": [
+              42.8,
+              42.7
+            ],
+            "Climbing Kit": [
+              24.4,
+              23.6
+            ],
+            "Mining Pick": [
+              2.6,
+              2.2
+            ],
+            "Padded Pack": [
+              4.5,
+              3.9
+            ],
+            "Cave Blade": [
+              7.0,
+              5.7
+            ],
+            "Prospector Charm": [
+              0.1,
+              0.1
+            ],
+            "Spare Battery": [
+              2.4,
+              2.3
+            ],
+            "Trail Map": [
+              19.7,
+              13.8
+            ],
+            "Safety Harness": [
+              6.3,
+              5.8
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Mining",
+          "escape_rate": 78.6,
+          "avg_score": 10.797,
+          "avg_score_survivors": 13.736641221374045,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 21.4,
+          "avg_mine_actions": 5.423,
+          "avg_farm_actions": 4.518,
+          "card_counts": {
+            "Treasure": 8302,
+            "Monster": 8387,
+            "Enhancement": 8514,
+            "Nothing": 8172
+          },
+          "empty_draws": 7181,
+          "equipment": {
+            "Boots": [
+              44.2,
+              44.2
+            ],
+            "Flashlight": [
+              33.4,
+              33.3
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              42.4,
+              38.5
+            ],
+            "Padded Pack": [
+              40.0,
+              31.5
+            ],
+            "Cave Blade": [
+              19.8,
+              18.2
+            ],
+            "Prospector Charm": [
+              23.1,
+              20.0
+            ],
+            "Spare Battery": [
+              1.3,
+              1.3
+            ],
+            "Trail Map": [
+              7.3,
+              5.7
+            ],
+            "Safety Harness": [
+              0.6,
+              0.3
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Gear",
+          "escape_rate": 83.4,
+          "avg_score": 13.311,
+          "avg_score_survivors": 15.96043165467626,
+          "zone3_rate": 53.2,
+          "cache_claim_rate": 9.1,
+          "boss_death_rate": 16.6,
+          "avg_mine_actions": 5.59,
+          "avg_farm_actions": 3.288,
+          "card_counts": {
+            "Treasure": 9013,
+            "Monster": 9121,
+            "Enhancement": 9265,
+            "Nothing": 8965
+          },
+          "empty_draws": 7843,
+          "equipment": {
+            "Boots": [
+              56.2,
+              56.2
+            ],
+            "Flashlight": [
+              55.1,
+              55.1
+            ],
+            "Climbing Kit": [
+              21.8,
+              14.1
+            ],
+            "Mining Pick": [
+              16.9,
+              15.2
+            ],
+            "Padded Pack": [
+              23.1,
+              18.8
+            ],
+            "Cave Blade": [
+              12.7,
+              11.9
+            ],
+            "Prospector Charm": [
+              6.9,
+              5.9
+            ],
+            "Spare Battery": [
+              1.8,
+              1.8
+            ],
+            "Trail Map": [
+              25.0,
+              21.4
+            ],
+            "Safety Harness": [
+              9.3,
+              8.5
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Deep",
+          "escape_rate": 75.1,
+          "avg_score": 9.647,
+          "avg_score_survivors": 12.845539280958722,
+          "zone3_rate": 75.4,
+          "cache_claim_rate": 42.4,
+          "boss_death_rate": 24.9,
+          "avg_mine_actions": 0.763,
+          "avg_farm_actions": 0.46,
+          "card_counts": {
+            "Treasure": 5836,
+            "Monster": 5805,
+            "Enhancement": 5972,
+            "Nothing": 5708
+          },
+          "empty_draws": 4989,
+          "equipment": {
+            "Boots": [
+              56.7,
+              56.7
+            ],
+            "Flashlight": [
+              61.8,
+              61.8
+            ],
+            "Climbing Kit": [
+              33.2,
+              30.4
+            ],
+            "Mining Pick": [
+              3.0,
+              1.0
+            ],
+            "Padded Pack": [
+              5.1,
+              3.5
+            ],
+            "Cave Blade": [
+              9.2,
+              7.9
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              2.9,
+              2.9
+            ],
+            "Trail Map": [
+              27.4,
+              21.1
+            ],
+            "Safety Harness": [
+              8.1,
+              7.4
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Mining",
+          "escape_rate": 75.8,
+          "avg_score": 7.674,
+          "avg_score_survivors": 10.12401055408971,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 24.2,
+          "avg_mine_actions": 7.657,
+          "avg_farm_actions": 1.111,
+          "card_counts": {
+            "Treasure": 6865,
+            "Monster": 6872,
+            "Enhancement": 6773,
+            "Nothing": 6803
+          },
+          "empty_draws": 6034,
+          "equipment": {
+            "Boots": [
+              41.5,
+              41.5
+            ],
+            "Flashlight": [
+              33.9,
+              33.6
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              39.9,
+              33.9
+            ],
+            "Padded Pack": [
+              40.8,
+              30.4
+            ],
+            "Cave Blade": [
+              17.1,
+              13.3
+            ],
+            "Prospector Charm": [
+              21.4,
+              17.0
+            ],
+            "Spare Battery": [
+              0.9,
+              0.9
+            ],
+            "Trail Map": [
+              6.2,
+              4.5
+            ],
+            "Safety Harness": [
+              0.7,
+              0.4
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Gear",
+          "escape_rate": 77.7,
+          "avg_score": 11.197,
+          "avg_score_survivors": 14.41055341055341,
+          "zone3_rate": 51.0,
+          "cache_claim_rate": 36.1,
+          "boss_death_rate": 22.3,
+          "avg_mine_actions": 7.344,
+          "avg_farm_actions": 1.705,
+          "card_counts": {
+            "Treasure": 7738,
+            "Monster": 7764,
+            "Enhancement": 7729,
+            "Nothing": 7688
+          },
+          "empty_draws": 6813,
+          "equipment": {
+            "Boots": [
+              57.6,
+              57.6
+            ],
+            "Flashlight": [
+              51.1,
+              50.9
+            ],
+            "Climbing Kit": [
+              22.5,
+              14.7
+            ],
+            "Mining Pick": [
+              16.3,
+              14.0
+            ],
+            "Padded Pack": [
+              20.1,
+              15.2
+            ],
+            "Cave Blade": [
+              11.4,
+              9.3
+            ],
+            "Prospector Charm": [
+              6.4,
+              5.4
+            ],
+            "Spare Battery": [
+              2.4,
+              2.4
+            ],
+            "Trail Map": [
+              25.8,
+              21.4
+            ],
+            "Safety Harness": [
+              9.5,
+              8.5
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Deep",
+          "escape_rate": 68.9,
+          "avg_score": 9.149,
+          "avg_score_survivors": 13.27866473149492,
+          "zone3_rate": 57.5,
+          "cache_claim_rate": 51.2,
+          "boss_death_rate": 31.1,
+          "avg_mine_actions": 1.49,
+          "avg_farm_actions": 2.491,
+          "card_counts": {
+            "Treasure": 5651,
+            "Monster": 5575,
+            "Enhancement": 5534,
+            "Nothing": 5561
+          },
+          "empty_draws": 4919,
+          "equipment": {
+            "Boots": [
+              38.8,
+              38.8
+            ],
+            "Flashlight": [
+              43.2,
+              43.2
+            ],
+            "Climbing Kit": [
+              26.4,
+              25.8
+            ],
+            "Mining Pick": [
+              2.8,
+              2.6
+            ],
+            "Padded Pack": [
+              5.4,
+              4.8
+            ],
+            "Cave Blade": [
+              8.0,
+              7.1
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              2.2,
+              2.2
+            ],
+            "Trail Map": [
+              19.1,
+              13.7
+            ],
+            "Safety Harness": [
+              7.7,
+              7.1
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Mining",
+          "escape_rate": 79.2,
+          "avg_score": 10.939,
+          "avg_score_survivors": 13.811868686868687,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 20.8,
+          "avg_mine_actions": 5.325,
+          "avg_farm_actions": 4.498,
+          "card_counts": {
+            "Treasure": 8331,
+            "Monster": 8355,
+            "Enhancement": 8370,
+            "Nothing": 8314
+          },
+          "empty_draws": 7342,
+          "equipment": {
+            "Boots": [
+              43.7,
+              43.7
+            ],
+            "Flashlight": [
+              35.7,
+              35.7
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              41.7,
+              38.6
+            ],
+            "Padded Pack": [
+              41.7,
+              32.1
+            ],
+            "Cave Blade": [
+              17.7,
+              16.0
+            ],
+            "Prospector Charm": [
+              22.7,
+              20.0
+            ],
+            "Spare Battery": [
+              1.6,
+              1.6
+            ],
+            "Trail Map": [
+              7.0,
+              5.6
+            ],
+            "Safety Harness": [
+              0.8,
+              0.6
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Gear",
+          "escape_rate": 80.9,
+          "avg_score": 12.759,
+          "avg_score_survivors": 15.77132262051916,
+          "zone3_rate": 52.7,
+          "cache_claim_rate": 9.7,
+          "boss_death_rate": 19.1,
+          "avg_mine_actions": 5.389,
+          "avg_farm_actions": 3.204,
+          "card_counts": {
+            "Treasure": 9020,
+            "Monster": 9064,
+            "Enhancement": 9038,
+            "Nothing": 8909
+          },
+          "empty_draws": 7878,
+          "equipment": {
+            "Boots": [
+              58.5,
+              58.5
+            ],
+            "Flashlight": [
+              51.6,
+              51.4
+            ],
+            "Climbing Kit": [
+              22.6,
+              15.4
+            ],
+            "Mining Pick": [
+              17.7,
+              16.3
+            ],
+            "Padded Pack": [
+              21.5,
+              18.2
+            ],
+            "Cave Blade": [
+              12.1,
+              11.3
+            ],
+            "Prospector Charm": [
+              7.4,
+              6.5
+            ],
+            "Spare Battery": [
+              2.7,
+              2.7
+            ],
+            "Trail Map": [
+              26.0,
+              22.1
+            ],
+            "Safety Harness": [
+              10.2,
+              8.7
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Deep",
+          "escape_rate": 74.3,
+          "avg_score": 9.494,
+          "avg_score_survivors": 12.77792732166891,
+          "zone3_rate": 75.9,
+          "cache_claim_rate": 42.4,
+          "boss_death_rate": 25.7,
+          "avg_mine_actions": 0.706,
+          "avg_farm_actions": 0.432,
+          "card_counts": {
+            "Treasure": 5812,
+            "Monster": 5769,
+            "Enhancement": 5771,
+            "Nothing": 5765
+          },
+          "empty_draws": 5114,
+          "equipment": {
+            "Boots": [
+              53.9,
+              53.9
+            ],
+            "Flashlight": [
+              60.4,
+              60.4
+            ],
+            "Climbing Kit": [
+              34.4,
+              32.4
+            ],
+            "Mining Pick": [
+              3.9,
+              1.2
+            ],
+            "Padded Pack": [
+              6.6,
+              5.7
+            ],
+            "Cave Blade": [
+              9.8,
+              8.5
+            ],
+            "Prospector Charm": [
+              0.1,
+              0.0
+            ],
+            "Spare Battery": [
+              2.5,
+              2.2
+            ],
+            "Trail Map": [
+              25.2,
+              20.3
+            ],
+            "Safety Harness": [
+              8.2,
+              7.4
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "label": "Refined 1",
+      "settings": {
+        "battery_price": 4,
+        "blade_price": 5,
+        "boots_price": 4,
+        "charm_price": 5,
+        "climbing_price": 2,
+        "flashlight_price": 3,
+        "harness_price": 3,
+        "map_price": 3,
+        "p_enhance": 10,
+        "p_monster": 30,
+        "p_treasure": 30,
+        "pack_price": 2,
+        "pack_protection": 1,
+        "pick_price": 3,
+        "deep_cache_loot": 6
+      },
+      "summary": {
+        "scores": {
+          "Mining": 7.6315,
+          "Gear": 9.1125,
+          "Deep": 8.90575
+        },
+        "survivor_scores": {
+          "Mining": 10.199402329706603,
+          "Gear": 11.61500137127489,
+          "Deep": 12.072472127936456
+        },
+        "viability_ratio": 0.8374759945130315,
+        "deep_lead": 0.4574707566615661,
+        "escape": 75.83333333333333,
+        "escape_by_policy": {
+          "Mining": 75.175,
+          "Gear": 78.525,
+          "Deep": 73.8
+        },
+        "gear_use": {
+          "Boots": 19.208333333333332,
+          "Flashlight": 30.616666666666667,
+          "Climbing Kit": 15.416666666666668,
+          "Mining Pick": 23.483333333333334,
+          "Padded Pack": 30.283333333333335,
+          "Cave Blade": 7.266666666666667,
+          "Prospector Charm": 6.55,
+          "Spare Battery": 16.125,
+          "Trail Map": 13.908333333333333,
+          "Safety Harness": 8.683333333333334
+        },
+        "gear_owned": {
+          "Boots": 19.208333333333332,
+          "Flashlight": 30.833333333333332,
+          "Climbing Kit": 34.125,
+          "Mining Pick": 30.25,
+          "Padded Pack": 38.06666666666667,
+          "Cave Blade": 8.883333333333333,
+          "Prospector Charm": 8.908333333333333,
+          "Spare Battery": 16.133333333333333,
+          "Trail Map": 15.841666666666667,
+          "Safety Harness": 9.85
+        },
+        "gear_spread": 24.066666666666666,
+        "card_rates": {
+          "Treasure": 30.063907866771586,
+          "Monster": 29.831883333210765,
+          "Enhancement": 10.206505511961582,
+          "Nothing": 29.897703288056068
+        },
+        "empty_rate": 26.39490502070203
+      },
+      "trials": [
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Mining",
+          "escape_rate": 77.6,
+          "avg_score": 6.483,
+          "avg_score_survivors": 8.35438144329897,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 22.4,
+          "avg_mine_actions": 5.616,
+          "avg_farm_actions": 0.237,
+          "card_counts": {
+            "Treasure": 6357,
+            "Monster": 6402,
+            "Enhancement": 2217,
+            "Nothing": 6310
+          },
+          "empty_draws": 5541,
+          "equipment": {
+            "Boots": [
+              12.3,
+              12.3
+            ],
+            "Flashlight": [
+              19.8,
+              19.2
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              61.3,
+              46.4
+            ],
+            "Padded Pack": [
+              62.0,
+              49.6
+            ],
+            "Cave Blade": [
+              16.2,
+              12.1
+            ],
+            "Prospector Charm": [
+              20.7,
+              13.4
+            ],
+            "Spare Battery": [
+              17.8,
+              17.8
+            ],
+            "Trail Map": [
+              8.4,
+              8.0
+            ],
+            "Safety Harness": [
+              3.2,
+              2.0
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Gear",
+          "escape_rate": 80.5,
+          "avg_score": 8.556,
+          "avg_score_survivors": 10.628571428571428,
+          "zone3_rate": 25.0,
+          "cache_claim_rate": 10.9,
+          "boss_death_rate": 19.5,
+          "avg_mine_actions": 5.461,
+          "avg_farm_actions": 0.468,
+          "card_counts": {
+            "Treasure": 6970,
+            "Monster": 7047,
+            "Enhancement": 2430,
+            "Nothing": 6939
+          },
+          "empty_draws": 6094,
+          "equipment": {
+            "Boots": [
+              26.3,
+              26.3
+            ],
+            "Flashlight": [
+              38.1,
+              37.6
+            ],
+            "Climbing Kit": [
+              48.3,
+              11.3
+            ],
+            "Mining Pick": [
+              25.4,
+              19.3
+            ],
+            "Padded Pack": [
+              37.9,
+              30.1
+            ],
+            "Cave Blade": [
+              6.3,
+              5.4
+            ],
+            "Prospector Charm": [
+              4.8,
+              2.9
+            ],
+            "Spare Battery": [
+              14.5,
+              14.5
+            ],
+            "Trail Map": [
+              22.3,
+              20.1
+            ],
+            "Safety Harness": [
+              15.9,
+              14.0
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Deep",
+          "escape_rate": 73.1,
+          "avg_score": 8.973,
+          "avg_score_survivors": 12.274965800273598,
+          "zone3_rate": 39.1,
+          "cache_claim_rate": 33.3,
+          "boss_death_rate": 26.9,
+          "avg_mine_actions": 0.683,
+          "avg_farm_actions": 1.388,
+          "card_counts": {
+            "Treasure": 5418,
+            "Monster": 5406,
+            "Enhancement": 1876,
+            "Nothing": 5380
+          },
+          "empty_draws": 4729,
+          "equipment": {
+            "Boots": [
+              14.0,
+              14.0
+            ],
+            "Flashlight": [
+              25.5,
+              25.5
+            ],
+            "Climbing Kit": [
+              43.1,
+              28.5
+            ],
+            "Mining Pick": [
+              4.3,
+              2.3
+            ],
+            "Padded Pack": [
+              10.4,
+              8.4
+            ],
+            "Cave Blade": [
+              2.2,
+              1.7
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              11.2,
+              11.1
+            ],
+            "Trail Map": [
+              12.0,
+              9.3
+            ],
+            "Safety Harness": [
+              7.8,
+              6.6
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Mining",
+          "escape_rate": 74.0,
+          "avg_score": 8.585,
+          "avg_score_survivors": 11.60135135135135,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 26.0,
+          "avg_mine_actions": 3.377,
+          "avg_farm_actions": 2.869,
+          "card_counts": {
+            "Treasure": 7674,
+            "Monster": 7701,
+            "Enhancement": 2658,
+            "Nothing": 7653
+          },
+          "empty_draws": 6722,
+          "equipment": {
+            "Boots": [
+              12.0,
+              12.0
+            ],
+            "Flashlight": [
+              19.5,
+              19.4
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              60.1,
+              50.9
+            ],
+            "Padded Pack": [
+              62.9,
+              49.6
+            ],
+            "Cave Blade": [
+              18.5,
+              15.3
+            ],
+            "Prospector Charm": [
+              20.6,
+              17.2
+            ],
+            "Spare Battery": [
+              18.3,
+              18.3
+            ],
+            "Trail Map": [
+              8.4,
+              7.6
+            ],
+            "Safety Harness": [
+              3.0,
+              2.6
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Gear",
+          "escape_rate": 78.4,
+          "avg_score": 9.902,
+          "avg_score_survivors": 12.630102040816327,
+          "zone3_rate": 20.1,
+          "cache_claim_rate": 0.6,
+          "boss_death_rate": 21.6,
+          "avg_mine_actions": 3.457,
+          "avg_farm_actions": 2.388,
+          "card_counts": {
+            "Treasure": 8245,
+            "Monster": 8341,
+            "Enhancement": 2876,
+            "Nothing": 8280
+          },
+          "empty_draws": 7290,
+          "equipment": {
+            "Boots": [
+              26.0,
+              26.0
+            ],
+            "Flashlight": [
+              36.4,
+              36.3
+            ],
+            "Climbing Kit": [
+              46.9,
+              9.3
+            ],
+            "Mining Pick": [
+              24.8,
+              21.1
+            ],
+            "Padded Pack": [
+              37.7,
+              31.1
+            ],
+            "Cave Blade": [
+              6.7,
+              6.0
+            ],
+            "Prospector Charm": [
+              5.6,
+              4.7
+            ],
+            "Spare Battery": [
+              14.4,
+              14.4
+            ],
+            "Trail Map": [
+              21.9,
+              19.2
+            ],
+            "Safety Harness": [
+              16.4,
+              15.4
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Deep",
+          "escape_rate": 75.1,
+          "avg_score": 8.728,
+          "avg_score_survivors": 11.621837549933423,
+          "zone3_rate": 61.0,
+          "cache_claim_rate": 21.0,
+          "boss_death_rate": 24.9,
+          "avg_mine_actions": 0.202,
+          "avg_farm_actions": 0.18,
+          "card_counts": {
+            "Treasure": 5885,
+            "Monster": 5866,
+            "Enhancement": 2019,
+            "Nothing": 5851
+          },
+          "empty_draws": 5152,
+          "equipment": {
+            "Boots": [
+              26.6,
+              26.6
+            ],
+            "Flashlight": [
+              46.6,
+              46.6
+            ],
+            "Climbing Kit": [
+              66.2,
+              43.7
+            ],
+            "Mining Pick": [
+              7.4,
+              0.6
+            ],
+            "Padded Pack": [
+              17.4,
+              12.5
+            ],
+            "Cave Blade": [
+              3.6,
+              2.9
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              18.5,
+              18.5
+            ],
+            "Trail Map": [
+              20.3,
+              16.8
+            ],
+            "Safety Harness": [
+              13.5,
+              11.9
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Mining",
+          "escape_rate": 76.9,
+          "avg_score": 6.711,
+          "avg_score_survivors": 8.726918075422628,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 23.1,
+          "avg_mine_actions": 5.757,
+          "avg_farm_actions": 0.275,
+          "card_counts": {
+            "Treasure": 6540,
+            "Monster": 6395,
+            "Enhancement": 2178,
+            "Nothing": 6504
+          },
+          "empty_draws": 5765,
+          "equipment": {
+            "Boots": [
+              12.1,
+              12.1
+            ],
+            "Flashlight": [
+              23.1,
+              22.4
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              60.8,
+              48.4
+            ],
+            "Padded Pack": [
+              64.5,
+              50.1
+            ],
+            "Cave Blade": [
+              15.8,
+              11.4
+            ],
+            "Prospector Charm": [
+              21.7,
+              14.3
+            ],
+            "Spare Battery": [
+              19.7,
+              19.7
+            ],
+            "Trail Map": [
+              7.0,
+              6.6
+            ],
+            "Safety Harness": [
+              2.1,
+              1.7
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Gear",
+          "escape_rate": 78.5,
+          "avg_score": 8.573,
+          "avg_score_survivors": 10.921019108280255,
+          "zone3_rate": 23.7,
+          "cache_claim_rate": 12.2,
+          "boss_death_rate": 21.5,
+          "avg_mine_actions": 5.438,
+          "avg_farm_actions": 0.525,
+          "card_counts": {
+            "Treasure": 7093,
+            "Monster": 6985,
+            "Enhancement": 2375,
+            "Nothing": 7066
+          },
+          "empty_draws": 6266,
+          "equipment": {
+            "Boots": [
+              27.1,
+              27.1
+            ],
+            "Flashlight": [
+              34.4,
+              33.8
+            ],
+            "Climbing Kit": [
+              48.7,
+              12.9
+            ],
+            "Mining Pick": [
+              23.3,
+              18.6
+            ],
+            "Padded Pack": [
+              38.1,
+              31.3
+            ],
+            "Cave Blade": [
+              7.5,
+              5.5
+            ],
+            "Prospector Charm": [
+              4.8,
+              3.2
+            ],
+            "Spare Battery": [
+              14.5,
+              14.5
+            ],
+            "Trail Map": [
+              24.6,
+              22.2
+            ],
+            "Safety Harness": [
+              15.5,
+              13.8
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Deep",
+          "escape_rate": 72.2,
+          "avg_score": 8.998,
+          "avg_score_survivors": 12.462603878116344,
+          "zone3_rate": 36.5,
+          "cache_claim_rate": 31.2,
+          "boss_death_rate": 27.8,
+          "avg_mine_actions": 0.649,
+          "avg_farm_actions": 1.306,
+          "card_counts": {
+            "Treasure": 5377,
+            "Monster": 5257,
+            "Enhancement": 1770,
+            "Nothing": 5331
+          },
+          "empty_draws": 4733,
+          "equipment": {
+            "Boots": [
+              11.6,
+              11.6
+            ],
+            "Flashlight": [
+              23.6,
+              23.6
+            ],
+            "Climbing Kit": [
+              42.7,
+              25.9
+            ],
+            "Mining Pick": [
+              4.5,
+              3.1
+            ],
+            "Padded Pack": [
+              9.0,
+              7.5
+            ],
+            "Cave Blade": [
+              2.4,
+              2.3
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              9.9,
+              9.9
+            ],
+            "Trail Map": [
+              12.3,
+              9.7
+            ],
+            "Safety Harness": [
+              8.2,
+              7.6
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Mining",
+          "escape_rate": 72.2,
+          "avg_score": 8.747,
+          "avg_score_survivors": 12.114958448753463,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 27.8,
+          "avg_mine_actions": 3.538,
+          "avg_farm_actions": 2.892,
+          "card_counts": {
+            "Treasure": 7912,
+            "Monster": 7710,
+            "Enhancement": 2611,
+            "Nothing": 7838
+          },
+          "empty_draws": 6945,
+          "equipment": {
+            "Boots": [
+              12.2,
+              12.2
+            ],
+            "Flashlight": [
+              22.6,
+              22.6
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              59.7,
+              49.5
+            ],
+            "Padded Pack": [
+              63.3,
+              50.0
+            ],
+            "Cave Blade": [
+              15.7,
+              14.5
+            ],
+            "Prospector Charm": [
+              23.1,
+              19.0
+            ],
+            "Spare Battery": [
+              18.9,
+              18.9
+            ],
+            "Trail Map": [
+              6.6,
+              6.2
+            ],
+            "Safety Harness": [
+              2.5,
+              2.1
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Gear",
+          "escape_rate": 76.7,
+          "avg_score": 9.419,
+          "avg_score_survivors": 12.28031290743155,
+          "zone3_rate": 20.6,
+          "cache_claim_rate": 0.6,
+          "boss_death_rate": 23.3,
+          "avg_mine_actions": 3.425,
+          "avg_farm_actions": 2.329,
+          "card_counts": {
+            "Treasure": 8360,
+            "Monster": 8253,
+            "Enhancement": 2766,
+            "Nothing": 8301
+          },
+          "empty_draws": 7357,
+          "equipment": {
+            "Boots": [
+              26.9,
+              26.9
+            ],
+            "Flashlight": [
+              34.1,
+              34.1
+            ],
+            "Climbing Kit": [
+              47.9,
+              10.9
+            ],
+            "Mining Pick": [
+              24.3,
+              21.0
+            ],
+            "Padded Pack": [
+              38.7,
+              32.4
+            ],
+            "Cave Blade": [
+              7.3,
+              6.7
+            ],
+            "Prospector Charm": [
+              5.6,
+              3.9
+            ],
+            "Spare Battery": [
+              15.5,
+              15.5
+            ],
+            "Trail Map": [
+              23.5,
+              21.7
+            ],
+            "Safety Harness": [
+              16.0,
+              14.7
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Deep",
+          "escape_rate": 74.8,
+          "avg_score": 8.924,
+          "avg_score_survivors": 11.93048128342246,
+          "zone3_rate": 61.0,
+          "cache_claim_rate": 21.0,
+          "boss_death_rate": 25.2,
+          "avg_mine_actions": 0.198,
+          "avg_farm_actions": 0.169,
+          "card_counts": {
+            "Treasure": 5929,
+            "Monster": 5766,
+            "Enhancement": 1981,
+            "Nothing": 5855
+          },
+          "empty_draws": 5188,
+          "equipment": {
+            "Boots": [
+              23.4,
+              23.4
+            ],
+            "Flashlight": [
+              46.3,
+              46.3
+            ],
+            "Climbing Kit": [
+              65.7,
+              42.5
+            ],
+            "Mining Pick": [
+              7.1,
+              0.6
+            ],
+            "Padded Pack": [
+              14.9,
+              10.8
+            ],
+            "Cave Blade": [
+              4.4,
+              3.4
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              20.4,
+              20.4
+            ],
+            "Trail Map": [
+              22.8,
+              19.5
+            ],
+            "Safety Harness": [
+              14.1,
+              11.8
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "label": "Refined 2",
+      "settings": {
+        "battery_price": 4,
+        "blade_price": 5,
+        "boots_price": 4,
+        "charm_price": 5,
+        "climbing_price": 2,
+        "flashlight_price": 3,
+        "harness_price": 3,
+        "map_price": 3,
+        "p_enhance": 10,
+        "p_monster": 30,
+        "p_treasure": 30,
+        "pack_price": 2,
+        "pack_protection": 1,
+        "pick_price": 3,
+        "deep_cache_loot": 8
+      },
+      "summary": {
+        "scores": {
+          "Mining": 7.6315,
+          "Gear": 9.212,
+          "Deep": 9.30475
+        },
+        "survivor_scores": {
+          "Mining": 10.199402329706603,
+          "Gear": 11.740329234269064,
+          "Deep": 12.615106921619414
+        },
+        "viability_ratio": 0.8201724925441306,
+        "deep_lead": 0.8747776873503508,
+        "escape": 75.83333333333333,
+        "escape_by_policy": {
+          "Mining": 75.175,
+          "Gear": 78.525,
+          "Deep": 73.8
+        },
+        "gear_use": {
+          "Boots": 19.208333333333332,
+          "Flashlight": 30.616666666666667,
+          "Climbing Kit": 15.416666666666668,
+          "Mining Pick": 23.483333333333334,
+          "Padded Pack": 30.283333333333335,
+          "Cave Blade": 7.266666666666667,
+          "Prospector Charm": 6.55,
+          "Spare Battery": 16.125,
+          "Trail Map": 13.908333333333333,
+          "Safety Harness": 8.683333333333334
+        },
+        "gear_owned": {
+          "Boots": 19.208333333333332,
+          "Flashlight": 30.833333333333332,
+          "Climbing Kit": 34.125,
+          "Mining Pick": 30.25,
+          "Padded Pack": 38.06666666666667,
+          "Cave Blade": 8.883333333333333,
+          "Prospector Charm": 8.908333333333333,
+          "Spare Battery": 16.133333333333333,
+          "Trail Map": 15.841666666666667,
+          "Safety Harness": 9.85
+        },
+        "gear_spread": 24.066666666666666,
+        "card_rates": {
+          "Treasure": 30.063907866771586,
+          "Monster": 29.831883333210765,
+          "Enhancement": 10.206505511961582,
+          "Nothing": 29.897703288056068
+        },
+        "empty_rate": 26.39490502070203
+      },
+      "trials": [
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Mining",
+          "escape_rate": 77.6,
+          "avg_score": 6.483,
+          "avg_score_survivors": 8.35438144329897,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 22.4,
+          "avg_mine_actions": 5.616,
+          "avg_farm_actions": 0.237,
+          "card_counts": {
+            "Treasure": 6357,
+            "Monster": 6402,
+            "Enhancement": 2217,
+            "Nothing": 6310
+          },
+          "empty_draws": 5541,
+          "equipment": {
+            "Boots": [
+              12.3,
+              12.3
+            ],
+            "Flashlight": [
+              19.8,
+              19.2
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              61.3,
+              46.4
+            ],
+            "Padded Pack": [
+              62.0,
+              49.6
+            ],
+            "Cave Blade": [
+              16.2,
+              12.1
+            ],
+            "Prospector Charm": [
+              20.7,
+              13.4
+            ],
+            "Spare Battery": [
+              17.8,
+              17.8
+            ],
+            "Trail Map": [
+              8.4,
+              8.0
+            ],
+            "Safety Harness": [
+              3.2,
+              2.0
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Gear",
+          "escape_rate": 80.5,
+          "avg_score": 8.746,
+          "avg_score_survivors": 10.864596273291925,
+          "zone3_rate": 25.0,
+          "cache_claim_rate": 10.9,
+          "boss_death_rate": 19.5,
+          "avg_mine_actions": 5.461,
+          "avg_farm_actions": 0.468,
+          "card_counts": {
+            "Treasure": 6970,
+            "Monster": 7047,
+            "Enhancement": 2430,
+            "Nothing": 6939
+          },
+          "empty_draws": 6094,
+          "equipment": {
+            "Boots": [
+              26.3,
+              26.3
+            ],
+            "Flashlight": [
+              38.1,
+              37.6
+            ],
+            "Climbing Kit": [
+              48.3,
+              11.3
+            ],
+            "Mining Pick": [
+              25.4,
+              19.3
+            ],
+            "Padded Pack": [
+              37.9,
+              30.1
+            ],
+            "Cave Blade": [
+              6.3,
+              5.4
+            ],
+            "Prospector Charm": [
+              4.8,
+              2.9
+            ],
+            "Spare Battery": [
+              14.5,
+              14.5
+            ],
+            "Trail Map": [
+              22.3,
+              20.1
+            ],
+            "Safety Harness": [
+              15.9,
+              14.0
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Deep",
+          "escape_rate": 73.1,
+          "avg_score": 9.483,
+          "avg_score_survivors": 12.972640218878249,
+          "zone3_rate": 39.1,
+          "cache_claim_rate": 33.3,
+          "boss_death_rate": 26.9,
+          "avg_mine_actions": 0.683,
+          "avg_farm_actions": 1.388,
+          "card_counts": {
+            "Treasure": 5418,
+            "Monster": 5406,
+            "Enhancement": 1876,
+            "Nothing": 5380
+          },
+          "empty_draws": 4729,
+          "equipment": {
+            "Boots": [
+              14.0,
+              14.0
+            ],
+            "Flashlight": [
+              25.5,
+              25.5
+            ],
+            "Climbing Kit": [
+              43.1,
+              28.5
+            ],
+            "Mining Pick": [
+              4.3,
+              2.3
+            ],
+            "Padded Pack": [
+              10.4,
+              8.4
+            ],
+            "Cave Blade": [
+              2.2,
+              1.7
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              11.2,
+              11.1
+            ],
+            "Trail Map": [
+              12.0,
+              9.3
+            ],
+            "Safety Harness": [
+              7.8,
+              6.6
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Mining",
+          "escape_rate": 74.0,
+          "avg_score": 8.585,
+          "avg_score_survivors": 11.60135135135135,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 26.0,
+          "avg_mine_actions": 3.377,
+          "avg_farm_actions": 2.869,
+          "card_counts": {
+            "Treasure": 7674,
+            "Monster": 7701,
+            "Enhancement": 2658,
+            "Nothing": 7653
+          },
+          "empty_draws": 6722,
+          "equipment": {
+            "Boots": [
+              12.0,
+              12.0
+            ],
+            "Flashlight": [
+              19.5,
+              19.4
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              60.1,
+              50.9
+            ],
+            "Padded Pack": [
+              62.9,
+              49.6
+            ],
+            "Cave Blade": [
+              18.5,
+              15.3
+            ],
+            "Prospector Charm": [
+              20.6,
+              17.2
+            ],
+            "Spare Battery": [
+              18.3,
+              18.3
+            ],
+            "Trail Map": [
+              8.4,
+              7.6
+            ],
+            "Safety Harness": [
+              3.0,
+              2.6
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Gear",
+          "escape_rate": 78.4,
+          "avg_score": 9.914,
+          "avg_score_survivors": 12.645408163265307,
+          "zone3_rate": 20.1,
+          "cache_claim_rate": 0.6,
+          "boss_death_rate": 21.6,
+          "avg_mine_actions": 3.457,
+          "avg_farm_actions": 2.388,
+          "card_counts": {
+            "Treasure": 8245,
+            "Monster": 8341,
+            "Enhancement": 2876,
+            "Nothing": 8280
+          },
+          "empty_draws": 7290,
+          "equipment": {
+            "Boots": [
+              26.0,
+              26.0
+            ],
+            "Flashlight": [
+              36.4,
+              36.3
+            ],
+            "Climbing Kit": [
+              46.9,
+              9.3
+            ],
+            "Mining Pick": [
+              24.8,
+              21.1
+            ],
+            "Padded Pack": [
+              37.7,
+              31.1
+            ],
+            "Cave Blade": [
+              6.7,
+              6.0
+            ],
+            "Prospector Charm": [
+              5.6,
+              4.7
+            ],
+            "Spare Battery": [
+              14.4,
+              14.4
+            ],
+            "Trail Map": [
+              21.9,
+              19.2
+            ],
+            "Safety Harness": [
+              16.4,
+              15.4
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Deep",
+          "escape_rate": 75.1,
+          "avg_score": 9.034,
+          "avg_score_survivors": 12.029294274300932,
+          "zone3_rate": 61.0,
+          "cache_claim_rate": 21.0,
+          "boss_death_rate": 24.9,
+          "avg_mine_actions": 0.202,
+          "avg_farm_actions": 0.18,
+          "card_counts": {
+            "Treasure": 5885,
+            "Monster": 5866,
+            "Enhancement": 2019,
+            "Nothing": 5851
+          },
+          "empty_draws": 5152,
+          "equipment": {
+            "Boots": [
+              26.6,
+              26.6
+            ],
+            "Flashlight": [
+              46.6,
+              46.6
+            ],
+            "Climbing Kit": [
+              66.2,
+              43.7
+            ],
+            "Mining Pick": [
+              7.4,
+              0.6
+            ],
+            "Padded Pack": [
+              17.4,
+              12.5
+            ],
+            "Cave Blade": [
+              3.6,
+              2.9
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              18.5,
+              18.5
+            ],
+            "Trail Map": [
+              20.3,
+              16.8
+            ],
+            "Safety Harness": [
+              13.5,
+              11.9
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Mining",
+          "escape_rate": 76.9,
+          "avg_score": 6.711,
+          "avg_score_survivors": 8.726918075422628,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 23.1,
+          "avg_mine_actions": 5.757,
+          "avg_farm_actions": 0.275,
+          "card_counts": {
+            "Treasure": 6540,
+            "Monster": 6395,
+            "Enhancement": 2178,
+            "Nothing": 6504
+          },
+          "empty_draws": 5765,
+          "equipment": {
+            "Boots": [
+              12.1,
+              12.1
+            ],
+            "Flashlight": [
+              23.1,
+              22.4
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              60.8,
+              48.4
+            ],
+            "Padded Pack": [
+              64.5,
+              50.1
+            ],
+            "Cave Blade": [
+              15.8,
+              11.4
+            ],
+            "Prospector Charm": [
+              21.7,
+              14.3
+            ],
+            "Spare Battery": [
+              19.7,
+              19.7
+            ],
+            "Trail Map": [
+              7.0,
+              6.6
+            ],
+            "Safety Harness": [
+              2.1,
+              1.7
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Gear",
+          "escape_rate": 78.5,
+          "avg_score": 8.759,
+          "avg_score_survivors": 11.157961783439491,
+          "zone3_rate": 23.7,
+          "cache_claim_rate": 12.2,
+          "boss_death_rate": 21.5,
+          "avg_mine_actions": 5.438,
+          "avg_farm_actions": 0.525,
+          "card_counts": {
+            "Treasure": 7093,
+            "Monster": 6985,
+            "Enhancement": 2375,
+            "Nothing": 7066
+          },
+          "empty_draws": 6266,
+          "equipment": {
+            "Boots": [
+              27.1,
+              27.1
+            ],
+            "Flashlight": [
+              34.4,
+              33.8
+            ],
+            "Climbing Kit": [
+              48.7,
+              12.9
+            ],
+            "Mining Pick": [
+              23.3,
+              18.6
+            ],
+            "Padded Pack": [
+              38.1,
+              31.3
+            ],
+            "Cave Blade": [
+              7.5,
+              5.5
+            ],
+            "Prospector Charm": [
+              4.8,
+              3.2
+            ],
+            "Spare Battery": [
+              14.5,
+              14.5
+            ],
+            "Trail Map": [
+              24.6,
+              22.2
+            ],
+            "Safety Harness": [
+              15.5,
+              13.8
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Deep",
+          "escape_rate": 72.2,
+          "avg_score": 9.468,
+          "avg_score_survivors": 13.113573407202216,
+          "zone3_rate": 36.5,
+          "cache_claim_rate": 31.2,
+          "boss_death_rate": 27.8,
+          "avg_mine_actions": 0.649,
+          "avg_farm_actions": 1.306,
+          "card_counts": {
+            "Treasure": 5377,
+            "Monster": 5257,
+            "Enhancement": 1770,
+            "Nothing": 5331
+          },
+          "empty_draws": 4733,
+          "equipment": {
+            "Boots": [
+              11.6,
+              11.6
+            ],
+            "Flashlight": [
+              23.6,
+              23.6
+            ],
+            "Climbing Kit": [
+              42.7,
+              25.9
+            ],
+            "Mining Pick": [
+              4.5,
+              3.1
+            ],
+            "Padded Pack": [
+              9.0,
+              7.5
+            ],
+            "Cave Blade": [
+              2.4,
+              2.3
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              9.9,
+              9.9
+            ],
+            "Trail Map": [
+              12.3,
+              9.7
+            ],
+            "Safety Harness": [
+              8.2,
+              7.6
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Mining",
+          "escape_rate": 72.2,
+          "avg_score": 8.747,
+          "avg_score_survivors": 12.114958448753463,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 27.8,
+          "avg_mine_actions": 3.538,
+          "avg_farm_actions": 2.892,
+          "card_counts": {
+            "Treasure": 7912,
+            "Monster": 7710,
+            "Enhancement": 2611,
+            "Nothing": 7838
+          },
+          "empty_draws": 6945,
+          "equipment": {
+            "Boots": [
+              12.2,
+              12.2
+            ],
+            "Flashlight": [
+              22.6,
+              22.6
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              59.7,
+              49.5
+            ],
+            "Padded Pack": [
+              63.3,
+              50.0
+            ],
+            "Cave Blade": [
+              15.7,
+              14.5
+            ],
+            "Prospector Charm": [
+              23.1,
+              19.0
+            ],
+            "Spare Battery": [
+              18.9,
+              18.9
+            ],
+            "Trail Map": [
+              6.6,
+              6.2
+            ],
+            "Safety Harness": [
+              2.5,
+              2.1
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Gear",
+          "escape_rate": 76.7,
+          "avg_score": 9.429,
+          "avg_score_survivors": 12.29335071707953,
+          "zone3_rate": 20.6,
+          "cache_claim_rate": 0.6,
+          "boss_death_rate": 23.3,
+          "avg_mine_actions": 3.425,
+          "avg_farm_actions": 2.329,
+          "card_counts": {
+            "Treasure": 8360,
+            "Monster": 8253,
+            "Enhancement": 2766,
+            "Nothing": 8301
+          },
+          "empty_draws": 7357,
+          "equipment": {
+            "Boots": [
+              26.9,
+              26.9
+            ],
+            "Flashlight": [
+              34.1,
+              34.1
+            ],
+            "Climbing Kit": [
+              47.9,
+              10.9
+            ],
+            "Mining Pick": [
+              24.3,
+              21.0
+            ],
+            "Padded Pack": [
+              38.7,
+              32.4
+            ],
+            "Cave Blade": [
+              7.3,
+              6.7
+            ],
+            "Prospector Charm": [
+              5.6,
+              3.9
+            ],
+            "Spare Battery": [
+              15.5,
+              15.5
+            ],
+            "Trail Map": [
+              23.5,
+              21.7
+            ],
+            "Safety Harness": [
+              16.0,
+              14.7
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Deep",
+          "escape_rate": 74.8,
+          "avg_score": 9.234,
+          "avg_score_survivors": 12.344919786096257,
+          "zone3_rate": 61.0,
+          "cache_claim_rate": 21.0,
+          "boss_death_rate": 25.2,
+          "avg_mine_actions": 0.198,
+          "avg_farm_actions": 0.169,
+          "card_counts": {
+            "Treasure": 5929,
+            "Monster": 5766,
+            "Enhancement": 1981,
+            "Nothing": 5855
+          },
+          "empty_draws": 5188,
+          "equipment": {
+            "Boots": [
+              23.4,
+              23.4
+            ],
+            "Flashlight": [
+              46.3,
+              46.3
+            ],
+            "Climbing Kit": [
+              65.7,
+              42.5
+            ],
+            "Mining Pick": [
+              7.1,
+              0.6
+            ],
+            "Padded Pack": [
+              14.9,
+              10.8
+            ],
+            "Cave Blade": [
+              4.4,
+              3.4
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              20.4,
+              20.4
+            ],
+            "Trail Map": [
+              22.8,
+              19.5
+            ],
+            "Safety Harness": [
+              14.1,
+              11.8
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "label": "Refined 3",
+      "settings": {
+        "battery_price": 4,
+        "blade_price": 6,
+        "boots_price": 4,
+        "charm_price": 5,
+        "climbing_price": 2,
+        "flashlight_price": 3,
+        "harness_price": 4,
+        "map_price": 3,
+        "p_enhance": 10,
+        "p_monster": 30,
+        "p_treasure": 30,
+        "pack_price": 1,
+        "pack_protection": 1,
+        "pick_price": 3,
+        "deep_cache_loot": 6
+      },
+      "summary": {
+        "scores": {
+          "Mining": 8.63125,
+          "Gear": 9.82175,
+          "Deep": 9.10975
+        },
+        "survivor_scores": {
+          "Mining": 11.332097875223779,
+          "Gear": 12.362217230322878,
+          "Deep": 12.276803104968806
+        },
+        "viability_ratio": 0.8787894214371166,
+        "deep_lead": -0.08541412535407211,
+        "escape": 76.76666666666667,
+        "escape_by_policy": {
+          "Mining": 76.5,
+          "Gear": 79.55,
+          "Deep": 74.25
+        },
+        "gear_use": {
+          "Boots": 19.341666666666665,
+          "Flashlight": 31.65833333333333,
+          "Climbing Kit": 14.816666666666666,
+          "Mining Pick": 25.033333333333335,
+          "Padded Pack": 47.775,
+          "Cave Blade": 2.95,
+          "Prospector Charm": 7.325,
+          "Spare Battery": 16.666666666666668,
+          "Trail Map": 14.341666666666667,
+          "Safety Harness": 3.475
+        },
+        "gear_owned": {
+          "Boots": 19.341666666666665,
+          "Flashlight": 31.85,
+          "Climbing Kit": 33.90833333333333,
+          "Mining Pick": 31.116666666666667,
+          "Padded Pack": 57.31666666666666,
+          "Cave Blade": 3.7916666666666665,
+          "Prospector Charm": 9.583333333333334,
+          "Spare Battery": 16.683333333333334,
+          "Trail Map": 16.3,
+          "Safety Harness": 3.908333333333333
+        },
+        "gear_spread": 44.824999999999996,
+        "card_rates": {
+          "Treasure": 30.06309588517871,
+          "Monster": 29.836861512244568,
+          "Enhancement": 10.212131450985002,
+          "Nothing": 29.88791115159172
+        },
+        "empty_rate": 26.3882563793686
+      },
+      "trials": [
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Mining",
+          "escape_rate": 79.4,
+          "avg_score": 7.743,
+          "avg_score_survivors": 9.751889168765743,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 20.6,
+          "avg_mine_actions": 6.087,
+          "avg_farm_actions": 0.253,
+          "card_counts": {
+            "Treasure": 6495,
+            "Monster": 6520,
+            "Enhancement": 2265,
+            "Nothing": 6497
+          },
+          "empty_draws": 5701,
+          "equipment": {
+            "Boots": [
+              14.3,
+              14.3
+            ],
+            "Flashlight": [
+              22.4,
+              21.5
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              64.4,
+              51.2
+            ],
+            "Padded Pack": [
+              80.6,
+              65.7
+            ],
+            "Cave Blade": [
+              7.6,
+              5.2
+            ],
+            "Prospector Charm": [
+              22.0,
+              16.2
+            ],
+            "Spare Battery": [
+              20.0,
+              20.0
+            ],
+            "Trail Map": [
+              9.3,
+              8.7
+            ],
+            "Safety Harness": [
+              0.5,
+              0.3
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Gear",
+          "escape_rate": 81.4,
+          "avg_score": 9.34,
+          "avg_score_survivors": 11.474201474201474,
+          "zone3_rate": 24.6,
+          "cache_claim_rate": 10.2,
+          "boss_death_rate": 18.6,
+          "avg_mine_actions": 5.592,
+          "avg_farm_actions": 0.405,
+          "card_counts": {
+            "Treasure": 6922,
+            "Monster": 6998,
+            "Enhancement": 2419,
+            "Nothing": 6865
+          },
+          "empty_draws": 6021,
+          "equipment": {
+            "Boots": [
+              25.7,
+              25.7
+            ],
+            "Flashlight": [
+              38.1,
+              37.6
+            ],
+            "Climbing Kit": [
+              49.2,
+              11.3
+            ],
+            "Mining Pick": [
+              25.5,
+              20.0
+            ],
+            "Padded Pack": [
+              60.0,
+              50.0
+            ],
+            "Cave Blade": [
+              2.1,
+              1.9
+            ],
+            "Prospector Charm": [
+              5.6,
+              3.4
+            ],
+            "Spare Battery": [
+              14.6,
+              14.6
+            ],
+            "Trail Map": [
+              23.1,
+              20.6
+            ],
+            "Safety Harness": [
+              7.1,
+              6.4
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Tested snake",
+          "policy": "Deep",
+          "escape_rate": 73.3,
+          "avg_score": 9.301,
+          "avg_score_survivors": 12.688949522510232,
+          "zone3_rate": 38.5,
+          "cache_claim_rate": 33.2,
+          "boss_death_rate": 26.7,
+          "avg_mine_actions": 0.667,
+          "avg_farm_actions": 1.306,
+          "card_counts": {
+            "Treasure": 5360,
+            "Monster": 5331,
+            "Enhancement": 1851,
+            "Nothing": 5312
+          },
+          "empty_draws": 4666,
+          "equipment": {
+            "Boots": [
+              13.1,
+              13.1
+            ],
+            "Flashlight": [
+              25.1,
+              25.1
+            ],
+            "Climbing Kit": [
+              41.7,
+              27.2
+            ],
+            "Mining Pick": [
+              4.5,
+              2.6
+            ],
+            "Padded Pack": [
+              24.0,
+              21.0
+            ],
+            "Cave Blade": [
+              0.8,
+              0.6
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              10.6,
+              10.5
+            ],
+            "Trail Map": [
+              11.5,
+              9.5
+            ],
+            "Safety Harness": [
+              2.8,
+              2.3
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Mining",
+          "escape_rate": 75.0,
+          "avg_score": 9.461,
+          "avg_score_survivors": 12.614666666666666,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 25.0,
+          "avg_mine_actions": 3.493,
+          "avg_farm_actions": 3.034,
+          "card_counts": {
+            "Treasure": 7770,
+            "Monster": 7832,
+            "Enhancement": 2696,
+            "Nothing": 7771
+          },
+          "empty_draws": 6841,
+          "equipment": {
+            "Boots": [
+              14.1,
+              14.1
+            ],
+            "Flashlight": [
+              22.4,
+              22.3
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              62.7,
+              54.2
+            ],
+            "Padded Pack": [
+              79.8,
+              67.7
+            ],
+            "Cave Blade": [
+              8.1,
+              6.7
+            ],
+            "Prospector Charm": [
+              22.6,
+              18.9
+            ],
+            "Spare Battery": [
+              20.2,
+              20.2
+            ],
+            "Trail Map": [
+              9.2,
+              8.3
+            ],
+            "Safety Harness": [
+              0.3,
+              0.3
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Gear",
+          "escape_rate": 78.8,
+          "avg_score": 10.477,
+          "avg_score_survivors": 13.295685279187817,
+          "zone3_rate": 18.3,
+          "cache_claim_rate": 0.6,
+          "boss_death_rate": 21.2,
+          "avg_mine_actions": 3.42,
+          "avg_farm_actions": 2.406,
+          "card_counts": {
+            "Treasure": 8208,
+            "Monster": 8334,
+            "Enhancement": 2858,
+            "Nothing": 8211
+          },
+          "empty_draws": 7224,
+          "equipment": {
+            "Boots": [
+              25.7,
+              25.7
+            ],
+            "Flashlight": [
+              36.9,
+              36.8
+            ],
+            "Climbing Kit": [
+              48.2,
+              8.3
+            ],
+            "Mining Pick": [
+              25.7,
+              22.0
+            ],
+            "Padded Pack": [
+              58.3,
+              50.5
+            ],
+            "Cave Blade": [
+              2.4,
+              2.1
+            ],
+            "Prospector Charm": [
+              5.7,
+              4.9
+            ],
+            "Spare Battery": [
+              14.7,
+              14.7
+            ],
+            "Trail Map": [
+              21.9,
+              19.1
+            ],
+            "Safety Harness": [
+              6.9,
+              6.4
+            ]
+          }
+        },
+        {
+          "seed": 20341826,
+          "map": "Original snake",
+          "policy": "Deep",
+          "escape_rate": 76.2,
+          "avg_score": 8.951,
+          "avg_score_survivors": 11.746719160104988,
+          "zone3_rate": 60.8,
+          "cache_claim_rate": 18.8,
+          "boss_death_rate": 23.8,
+          "avg_mine_actions": 0.17,
+          "avg_farm_actions": 0.15,
+          "card_counts": {
+            "Treasure": 5803,
+            "Monster": 5779,
+            "Enhancement": 2000,
+            "Nothing": 5780
+          },
+          "empty_draws": 5098,
+          "equipment": {
+            "Boots": [
+              24.8,
+              24.8
+            ],
+            "Flashlight": [
+              46.9,
+              46.9
+            ],
+            "Climbing Kit": [
+              65.6,
+              42.7
+            ],
+            "Mining Pick": [
+              7.5,
+              0.6
+            ],
+            "Padded Pack": [
+              38.5,
+              30.3
+            ],
+            "Cave Blade": [
+              1.5,
+              1.2
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              17.0,
+              17.0
+            ],
+            "Trail Map": [
+              20.4,
+              17.2
+            ],
+            "Safety Harness": [
+              5.0,
+              4.6
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Mining",
+          "escape_rate": 78.3,
+          "avg_score": 7.673,
+          "avg_score_survivors": 9.79948914431673,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 21.7,
+          "avg_mine_actions": 6.081,
+          "avg_farm_actions": 0.255,
+          "card_counts": {
+            "Treasure": 6572,
+            "Monster": 6444,
+            "Enhancement": 2209,
+            "Nothing": 6560
+          },
+          "empty_draws": 5813,
+          "equipment": {
+            "Boots": [
+              12.9,
+              12.9
+            ],
+            "Flashlight": [
+              24.4,
+              24.2
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              62.4,
+              51.7
+            ],
+            "Padded Pack": [
+              83.8,
+              70.1
+            ],
+            "Cave Blade": [
+              7.4,
+              5.2
+            ],
+            "Prospector Charm": [
+              23.4,
+              15.7
+            ],
+            "Spare Battery": [
+              20.5,
+              20.5
+            ],
+            "Trail Map": [
+              7.5,
+              7.2
+            ],
+            "Safety Harness": [
+              0.6,
+              0.3
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Gear",
+          "escape_rate": 80.5,
+          "avg_score": 9.225,
+          "avg_score_survivors": 11.459627329192546,
+          "zone3_rate": 24.0,
+          "cache_claim_rate": 10.8,
+          "boss_death_rate": 19.5,
+          "avg_mine_actions": 5.542,
+          "avg_farm_actions": 0.466,
+          "card_counts": {
+            "Treasure": 7058,
+            "Monster": 6969,
+            "Enhancement": 2356,
+            "Nothing": 7006
+          },
+          "empty_draws": 6212,
+          "equipment": {
+            "Boots": [
+              26.9,
+              26.9
+            ],
+            "Flashlight": [
+              34.9,
+              34.4
+            ],
+            "Climbing Kit": [
+              48.6,
+              11.8
+            ],
+            "Mining Pick": [
+              23.9,
+              19.9
+            ],
+            "Padded Pack": [
+              60.4,
+              50.3
+            ],
+            "Cave Blade": [
+              2.6,
+              2.0
+            ],
+            "Prospector Charm": [
+              5.4,
+              3.2
+            ],
+            "Spare Battery": [
+              15.2,
+              15.2
+            ],
+            "Trail Map": [
+              25.6,
+              22.6
+            ],
+            "Safety Harness": [
+              8.2,
+              7.1
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Tested snake",
+          "policy": "Deep",
+          "escape_rate": 71.9,
+          "avg_score": 9.03,
+          "avg_score_survivors": 12.559109874826147,
+          "zone3_rate": 36.6,
+          "cache_claim_rate": 31.5,
+          "boss_death_rate": 28.1,
+          "avg_mine_actions": 0.684,
+          "avg_farm_actions": 1.261,
+          "card_counts": {
+            "Treasure": 5353,
+            "Monster": 5248,
+            "Enhancement": 1769,
+            "Nothing": 5306
+          },
+          "empty_draws": 4706,
+          "equipment": {
+            "Boots": [
+              11.7,
+              11.7
+            ],
+            "Flashlight": [
+              24.3,
+              24.3
+            ],
+            "Climbing Kit": [
+              41.6,
+              25.6
+            ],
+            "Mining Pick": [
+              3.8,
+              2.5
+            ],
+            "Padded Pack": [
+              21.6,
+              18.5
+            ],
+            "Cave Blade": [
+              0.5,
+              0.5
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              10.5,
+              10.5
+            ],
+            "Trail Map": [
+              12.1,
+              9.6
+            ],
+            "Safety Harness": [
+              2.2,
+              2.1
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Mining",
+          "escape_rate": 73.3,
+          "avg_score": 9.648,
+          "avg_score_survivors": 13.162346521145976,
+          "zone3_rate": 0.0,
+          "cache_claim_rate": 0.0,
+          "boss_death_rate": 26.7,
+          "avg_mine_actions": 3.568,
+          "avg_farm_actions": 3.052,
+          "card_counts": {
+            "Treasure": 8029,
+            "Monster": 7802,
+            "Enhancement": 2647,
+            "Nothing": 7918
+          },
+          "empty_draws": 7019,
+          "equipment": {
+            "Boots": [
+              13.8,
+              13.8
+            ],
+            "Flashlight": [
+              24.7,
+              24.7
+            ],
+            "Climbing Kit": [
+              0.0,
+              0.0
+            ],
+            "Mining Pick": [
+              61.2,
+              53.4
+            ],
+            "Padded Pack": [
+              82.9,
+              68.7
+            ],
+            "Cave Blade": [
+              8.4,
+              6.8
+            ],
+            "Prospector Charm": [
+              24.5,
+              21.1
+            ],
+            "Spare Battery": [
+              20.6,
+              20.6
+            ],
+            "Trail Map": [
+              7.0,
+              6.6
+            ],
+            "Safety Harness": [
+              0.8,
+              0.7
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Gear",
+          "escape_rate": 77.5,
+          "avg_score": 10.245,
+          "avg_score_survivors": 13.219354838709677,
+          "zone3_rate": 19.8,
+          "cache_claim_rate": 0.6,
+          "boss_death_rate": 22.5,
+          "avg_mine_actions": 3.396,
+          "avg_farm_actions": 2.417,
+          "card_counts": {
+            "Treasure": 8402,
+            "Monster": 8271,
+            "Enhancement": 2779,
+            "Nothing": 8350
+          },
+          "empty_draws": 7406,
+          "equipment": {
+            "Boots": [
+              27.1,
+              27.1
+            ],
+            "Flashlight": [
+              34.5,
+              34.5
+            ],
+            "Climbing Kit": [
+              47.6,
+              9.2
+            ],
+            "Mining Pick": [
+              24.8,
+              21.8
+            ],
+            "Padded Pack": [
+              60.0,
+              52.3
+            ],
+            "Cave Blade": [
+              2.8,
+              2.4
+            ],
+            "Prospector Charm": [
+              5.8,
+              4.5
+            ],
+            "Spare Battery": [
+              15.7,
+              15.6
+            ],
+            "Trail Map": [
+              25.0,
+              22.5
+            ],
+            "Safety Harness": [
+              8.7,
+              8.1
+            ]
+          }
+        },
+        {
+          "seed": 20351850,
+          "map": "Original snake",
+          "policy": "Deep",
+          "escape_rate": 75.6,
+          "avg_score": 9.157,
+          "avg_score_survivors": 12.112433862433862,
+          "zone3_rate": 60.6,
+          "cache_claim_rate": 18.4,
+          "boss_death_rate": 24.4,
+          "avg_mine_actions": 0.177,
+          "avg_farm_actions": 0.144,
+          "card_counts": {
+            "Treasure": 5885,
+            "Monster": 5713,
+            "Enhancement": 1957,
+            "Nothing": 5804
+          },
+          "empty_draws": 5144,
+          "equipment": {
+            "Boots": [
+              22.0,
+              22.0
+            ],
+            "Flashlight": [
+              47.6,
+              47.6
+            ],
+            "Climbing Kit": [
+              64.4,
+              41.7
+            ],
+            "Mining Pick": [
+              7.0,
+              0.5
+            ],
+            "Padded Pack": [
+              37.9,
+              28.2
+            ],
+            "Cave Blade": [
+              1.3,
+              0.8
+            ],
+            "Prospector Charm": [
+              0.0,
+              0.0
+            ],
+            "Spare Battery": [
+              20.6,
+              20.6
+            ],
+            "Trail Map": [
+              23.0,
+              20.2
+            ],
+            "Safety Harness": [
+              3.8,
+              3.1
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "late_retreat": {
+    "Mining": {
+      "escape_rate": 56.9,
+      "avg_score": 6.528,
+      "avg_score_survivors": 11.472759226713533,
+      "zone3_rate": 0.0,
+      "cache_claim_rate": 0.0,
+      "boss_death_rate": 41.0,
+      "avg_mine_actions": 7.408,
+      "avg_farm_actions": 0.808,
+      "card_counts": {
+        "Treasure": 7603,
+        "Monster": 7408,
+        "Enhancement": 2480,
+        "Nothing": 7549
+      },
+      "empty_draws": 6683,
+      "equipment": {
+        "Boots": [
+          15.9,
+          15.6
+        ],
+        "Flashlight": [
+          27.9,
+          26.5
+        ],
+        "Climbing Kit": [
+          0.0,
+          0.0
+        ],
+        "Mining Pick": [
+          65.9,
+          62.2
+        ],
+        "Padded Pack": [
+          87.0,
+          76.4
+        ],
+        "Cave Blade": [
+          10.0,
+          7.8
+        ],
+        "Prospector Charm": [
+          28.7,
+          21.9
+        ],
+        "Spare Battery": [
+          24.2,
+          24.0
+        ],
+        "Trail Map": [
+          9.1,
+          4.5
+        ],
+        "Safety Harness": [
+          0.8,
+          0.8
+        ]
+      }
+    },
+    "Gear": {
+      "escape_rate": 60.0,
+      "avg_score": 8.126,
+      "avg_score_survivors": 13.543333333333333,
+      "zone3_rate": 30.0,
+      "cache_claim_rate": 15.0,
+      "boss_death_rate": 36.5,
+      "avg_mine_actions": 6.361,
+      "avg_farm_actions": 1.173,
+      "card_counts": {
+        "Treasure": 8085,
+        "Monster": 7982,
+        "Enhancement": 2683,
+        "Nothing": 8073
+      },
+      "empty_draws": 7161,
+      "equipment": {
+        "Boots": [
+          31.0,
+          30.6
+        ],
+        "Flashlight": [
+          39.4,
+          37.6
+        ],
+        "Climbing Kit": [
+          50.5,
+          15.6
+        ],
+        "Mining Pick": [
+          27.2,
+          24.8
+        ],
+        "Padded Pack": [
+          62.9,
+          55.8
+        ],
+        "Cave Blade": [
+          3.4,
+          2.5
+        ],
+        "Prospector Charm": [
+          7.2,
+          5.3
+        ],
+        "Spare Battery": [
+          17.8,
+          17.6
+        ],
+        "Trail Map": [
+          27.3,
+          17.5
+        ],
+        "Safety Harness": [
+          9.1,
+          8.4
+        ]
+      }
+    },
+    "Deep": {
+      "escape_rate": 54.8,
+      "avg_score": 8.105,
+      "avg_score_survivors": 14.790145985401459,
+      "zone3_rate": 67.7,
+      "cache_claim_rate": 55.4,
+      "boss_death_rate": 40.9,
+      "avg_mine_actions": 0.977,
+      "avg_farm_actions": 2.004,
+      "card_counts": {
+        "Treasure": 6354,
+        "Monster": 6220,
+        "Enhancement": 2096,
+        "Nothing": 6280
+      },
+      "empty_draws": 5570,
+      "equipment": {
+        "Boots": [
+          24.1,
+          23.4
+        ],
+        "Flashlight": [
+          46.9,
+          42.1
+        ],
+        "Climbing Kit": [
+          60.3,
+          47.9
+        ],
+        "Mining Pick": [
+          7.1,
+          5.8
+        ],
+        "Padded Pack": [
+          35.7,
+          29.1
+        ],
+        "Cave Blade": [
+          1.1,
+          0.8
+        ],
+        "Prospector Charm": [
+          0.0,
+          0.0
+        ],
+        "Spare Battery": [
+          20.9,
+          20.2
+        ],
+        "Trail Map": [
+          24.1,
+          17.8
+        ],
+        "Safety Harness": [
+          4.4,
+          4.3
+        ]
+      }
+    }
+  },
+  "mining_ev": {
+    "Mining": [
+      {
+        "label": "Repeat farm \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 4,
+        "coverage": 0.4,
+        "uses_per_player": 0.004,
+        "ev": 4.25,
+        "interval": [
+          -7.574476027855667,
+          16.074476027855667
+        ],
+        "escape_delta": 25.0,
+        "signal": "Small sample",
+        "action_score": 15.5,
+        "alternative_score": 11.25
+      },
+      {
+        "label": "First farm \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 82,
+        "coverage": 8.200000000000001,
+        "uses_per_player": 0.082,
+        "ev": 0.9512195121951219,
+        "interval": [
+          -0.20031226959349002,
+          2.102751293983734
+        ],
+        "escape_delta": 6.097560975609756,
+        "signal": "No clear gain",
+        "action_score": 9.707317073170731,
+        "alternative_score": 8.75609756097561
+      },
+      {
+        "label": "First mine \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 1000,
+        "coverage": 100.0,
+        "uses_per_player": 1.0,
+        "ev": -0.132,
+        "interval": [
+          -0.3962222196786022,
+          0.1322222196786022
+        ],
+        "escape_delta": 0.7000000000000001,
+        "signal": "No clear gain",
+        "action_score": 7.673,
+        "alternative_score": 7.805
+      },
+      {
+        "label": "Repeat mine \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 1000,
+        "coverage": 100.0,
+        "uses_per_player": 2.101,
+        "ev": -0.16,
+        "interval": [
+          -0.3982080073782502,
+          0.07820800737825018
+        ],
+        "escape_delta": 0.6,
+        "signal": "No clear gain",
+        "action_score": 7.673,
+        "alternative_score": 7.833
+      },
+      {
+        "label": "Repeat mine \u00b7 Zone 2",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 603,
+        "coverage": 60.3,
+        "uses_per_player": 2.255,
+        "ev": -0.19237147595356552,
+        "interval": [
+          -0.53823546992785,
+          0.15349251802071895
+        ],
+        "escape_delta": 0.8291873963515755,
+        "signal": "No clear gain",
+        "action_score": 9.99502487562189,
+        "alternative_score": 10.187396351575456
+      },
+      {
+        "label": "First farm \u00b7 Zone 2",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 112,
+        "coverage": 11.200000000000001,
+        "uses_per_player": 0.112,
+        "ev": -0.375,
+        "interval": [
+          -1.161634285158676,
+          0.41163428515867595
+        ],
+        "escape_delta": -2.6785714285714284,
+        "signal": "No clear gain",
+        "action_score": 16.767857142857142,
+        "alternative_score": 17.142857142857142
+      },
+      {
+        "label": "First mine \u00b7 Zone 2",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 725,
+        "coverage": 72.5,
+        "uses_per_player": 0.725,
+        "ev": -0.3931034482758621,
+        "interval": [
+          -0.6567523207284404,
+          -0.1294545758232838
+        ],
+        "escape_delta": -0.6896551724137931,
+        "signal": "Alternative banks more",
+        "action_score": 9.052413793103447,
+        "alternative_score": 9.44551724137931
+      },
+      {
+        "label": "Repeat farm \u00b7 Zone 2",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 46,
+        "coverage": 4.6,
+        "uses_per_player": 0.057,
+        "ev": -0.6521739130434783,
+        "interval": [
+          -2.028241247266031,
+          0.7238934211790748
+        ],
+        "escape_delta": -6.521739130434782,
+        "signal": "No clear gain",
+        "action_score": 19.152173913043477,
+        "alternative_score": 19.804347826086957
+      }
+    ],
+    "Gear": [
+      {
+        "label": "Repeat farm \u00b7 Zone 2",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 47,
+        "coverage": 4.7,
+        "uses_per_player": 0.067,
+        "ev": 2.404255319148936,
+        "interval": [
+          0.683775969317431,
+          4.124734668980441
+        ],
+        "escape_delta": 12.76595744680851,
+        "signal": "Situational +EV",
+        "action_score": 18.148936170212767,
+        "alternative_score": 15.74468085106383
+      },
+      {
+        "label": "First mine \u00b7 Zone 3",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 152,
+        "coverage": 15.2,
+        "uses_per_player": 0.152,
+        "ev": 2.0789473684210527,
+        "interval": [
+          0.8146530121477045,
+          3.343241724694401
+        ],
+        "escape_delta": 0.6578947368421052,
+        "signal": "Situational +EV",
+        "action_score": 23.38157894736842,
+        "alternative_score": 21.30263157894737
+      },
+      {
+        "label": "Repeat farm \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 8,
+        "coverage": 0.8,
+        "uses_per_player": 0.008,
+        "ev": 2,
+        "interval": [
+          -2.8009998958550284,
+          6.800999895855028
+        ],
+        "escape_delta": 12.5,
+        "signal": "Small sample",
+        "action_score": 7.75,
+        "alternative_score": 5.75
+      },
+      {
+        "label": "Repeat mine \u00b7 Zone 3",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 84,
+        "coverage": 8.4,
+        "uses_per_player": 0.138,
+        "ev": 1.7023809523809523,
+        "interval": [
+          -0.3502297227953546,
+          3.754991627557259
+        ],
+        "escape_delta": 4.761904761904762,
+        "signal": "No clear gain",
+        "action_score": 26.86904761904762,
+        "alternative_score": 25.166666666666668
+      },
+      {
+        "label": "First farm \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 132,
+        "coverage": 13.200000000000001,
+        "uses_per_player": 0.132,
+        "ev": 1.4393939393939394,
+        "interval": [
+          0.22668926060781946,
+          2.6520986181800597
+        ],
+        "escape_delta": 11.363636363636363,
+        "signal": "Situational +EV",
+        "action_score": 7.333333333333333,
+        "alternative_score": 5.893939393939394
+      },
+      {
+        "label": "First farm \u00b7 Zone 3",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 75,
+        "coverage": 7.5,
+        "uses_per_player": 0.075,
+        "ev": 1.3733333333333333,
+        "interval": [
+          -1.5934196624332302,
+          4.340086329099897
+        ],
+        "escape_delta": 1.3333333333333335,
+        "signal": "No clear gain",
+        "action_score": 29.68,
+        "alternative_score": 28.30666666666667
+      },
+      {
+        "label": "First farm \u00b7 Zone 2",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 150,
+        "coverage": 15.0,
+        "uses_per_player": 0.15,
+        "ev": 0.9666666666666667,
+        "interval": [
+          -0.15681085992956112,
+          2.0901441932628946
+        ],
+        "escape_delta": 1.3333333333333335,
+        "signal": "No clear gain",
+        "action_score": 17.6,
+        "alternative_score": 16.633333333333333
+      },
+      {
+        "label": "Repeat mine \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 1000,
+        "coverage": 100.0,
+        "uses_per_player": 2.108,
+        "ev": 0.333,
+        "interval": [
+          -0.0026510787365776056,
+          0.6686510787365776
+        ],
+        "escape_delta": 1.6,
+        "signal": "No clear gain",
+        "action_score": 9.225,
+        "alternative_score": 8.892
+      },
+      {
+        "label": "First mine \u00b7 Zone 2",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 783,
+        "coverage": 78.3,
+        "uses_per_player": 0.783,
+        "ev": 0.2081736909323116,
+        "interval": [
+          -0.13556546791930993,
+          0.5519128497839332
+        ],
+        "escape_delta": 0.1277139208173691,
+        "signal": "No clear gain",
+        "action_score": 10.406130268199234,
+        "alternative_score": 10.197956577266922
+      },
+      {
+        "label": "First mine \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 1000,
+        "coverage": 100.0,
+        "uses_per_player": 1.0,
+        "ev": 0.055,
+        "interval": [
+          -0.3054491729288059,
+          0.4154491729288059
+        ],
+        "escape_delta": 1.3,
+        "signal": "No clear gain",
+        "action_score": 9.225,
+        "alternative_score": 9.17
+      },
+      {
+        "label": "Repeat mine \u00b7 Zone 2",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 670,
+        "coverage": 67.0,
+        "uses_per_player": 1.361,
+        "ev": -0.24925373134328357,
+        "interval": [
+          -0.6819183890780679,
+          0.18341092639150078
+        ],
+        "escape_delta": 0,
+        "signal": "No clear gain",
+        "action_score": 11.361194029850747,
+        "alternative_score": 11.61044776119403
+      },
+      {
+        "label": "Repeat farm \u00b7 Zone 3",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 26,
+        "coverage": 2.6,
+        "uses_per_player": 0.034,
+        "ev": -0.4230769230769231,
+        "interval": [
+          -6.511226313867496,
+          5.6650724677136495
+        ],
+        "escape_delta": 0,
+        "signal": "Small sample",
+        "action_score": 29.53846153846154,
+        "alternative_score": 29.96153846153846
+      }
+    ],
+    "Deep": [
+      {
+        "label": "First farm \u00b7 Zone 3",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 269,
+        "coverage": 26.900000000000002,
+        "uses_per_player": 0.269,
+        "ev": 1.412639405204461,
+        "interval": [
+          0.5876973424835837,
+          2.2375814679253385
+        ],
+        "escape_delta": 0.7434944237918215,
+        "signal": "Review for abuse",
+        "action_score": 19.044609665427508,
+        "alternative_score": 17.63197026022305
+      },
+      {
+        "label": "Repeat farm \u00b7 Zone 3",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 151,
+        "coverage": 15.1,
+        "uses_per_player": 0.201,
+        "ev": 2.5496688741721854,
+        "interval": [
+          1.3330055008929076,
+          3.766332247451463
+        ],
+        "escape_delta": 3.9735099337748347,
+        "signal": "Situational +EV",
+        "action_score": 22.04635761589404,
+        "alternative_score": 19.496688741721854
+      },
+      {
+        "label": "Repeat mine \u00b7 Zone 3",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 224,
+        "coverage": 22.400000000000002,
+        "uses_per_player": 0.407,
+        "ev": 2.46875,
+        "interval": [
+          1.5801023814485222,
+          3.357397618551478
+        ],
+        "escape_delta": 5.357142857142857,
+        "signal": "Situational +EV",
+        "action_score": 18.839285714285715,
+        "alternative_score": 16.370535714285715
+      },
+      {
+        "label": "First mine \u00b7 Zone 3",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 277,
+        "coverage": 27.700000000000003,
+        "uses_per_player": 0.277,
+        "ev": 0.851985559566787,
+        "interval": [
+          0.11932702434225217,
+          1.5846440947913218
+        ],
+        "escape_delta": 1.083032490974729,
+        "signal": "No clear gain",
+        "action_score": 18.584837545126355,
+        "alternative_score": 17.732851985559567
+      },
+      {
+        "label": "Repeat farm \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 199,
+        "coverage": 19.900000000000002,
+        "uses_per_player": 0.228,
+        "ev": 0.5628140703517588,
+        "interval": [
+          -0.6571135958054324,
+          1.78274173650895
+        ],
+        "escape_delta": 0.5025125628140703,
+        "signal": "No clear gain",
+        "action_score": 12.628140703517587,
+        "alternative_score": 12.06532663316583
+      },
+      {
+        "label": "First farm \u00b7 Zone 1",
+        "alternative": "Skip the farm activation and end the turn",
+        "pairs": 563,
+        "coverage": 56.3,
+        "uses_per_player": 0.563,
+        "ev": -0.019538188277087035,
+        "interval": [
+          -0.6907306327755371,
+          0.651654256221363
+        ],
+        "escape_delta": -0.8880994671403196,
+        "signal": "No clear gain",
+        "action_score": 10.72646536412078,
+        "alternative_score": 10.746003552397868
+      }
+    ]
+  },
+  "item_ablation": {
+    "Mining": {
+      "Boots": {
+        "loot_delta": 0.5679999999999996,
+        "escape_delta": 1.5999999999999943
+      },
+      "Flashlight": {
+        "loot_delta": 0.6929999999999996,
+        "escape_delta": -3.700000000000003
+      },
+      "Climbing Kit": {
+        "loot_delta": 0.0,
+        "escape_delta": 0.0
+      },
+      "Mining Pick": {
+        "loot_delta": -1.1739999999999995,
+        "escape_delta": -3.4000000000000057
+      },
+      "Padded Pack": {
+        "loot_delta": 0.702,
+        "escape_delta": -1.6000000000000085
+      },
+      "Cave Blade": {
+        "loot_delta": -0.3250000000000002,
+        "escape_delta": -0.29999999999999716
+      },
+      "Prospector Charm": {
+        "loot_delta": -0.6549999999999994,
+        "escape_delta": -2.700000000000003
+      },
+      "Spare Battery": {
+        "loot_delta": -0.08499999999999996,
+        "escape_delta": 4.299999999999997
+      },
+      "Trail Map": {
+        "loot_delta": -0.017999999999999794,
+        "escape_delta": 1.0999999999999943
+      },
+      "Safety Harness": {
+        "loot_delta": -0.01100000000000012,
+        "escape_delta": 0.0
+      }
+    },
+    "Gear": {
+      "Boots": {
+        "loot_delta": 0.8309999999999995,
+        "escape_delta": 1.5999999999999943
+      },
+      "Flashlight": {
+        "loot_delta": 1.4699999999999998,
+        "escape_delta": -4.599999999999994
+      },
+      "Climbing Kit": {
+        "loot_delta": -0.559000000000001,
+        "escape_delta": -1.2999999999999972
+      },
+      "Mining Pick": {
+        "loot_delta": -0.5489999999999995,
+        "escape_delta": -1.5999999999999943
+      },
+      "Padded Pack": {
+        "loot_delta": 0.04100000000000037,
+        "escape_delta": -0.20000000000000284
+      },
+      "Cave Blade": {
+        "loot_delta": -0.14400000000000013,
+        "escape_delta": -0.29999999999999716
+      },
+      "Prospector Charm": {
+        "loot_delta": -0.1070000000000011,
+        "escape_delta": -0.5999999999999943
+      },
+      "Spare Battery": {
+        "loot_delta": 0.16199999999999903,
+        "escape_delta": 2.9000000000000057
+      },
+      "Trail Map": {
+        "loot_delta": -0.3309999999999995,
+        "escape_delta": 1.2000000000000028
+      },
+      "Safety Harness": {
+        "loot_delta": -0.14200000000000124,
+        "escape_delta": 0.09999999999999432
+      }
+    },
+    "Deep": {
+      "Boots": {
+        "loot_delta": 0.18399999999999928,
+        "escape_delta": 0.0
+      },
+      "Flashlight": {
+        "loot_delta": 1.2799999999999994,
+        "escape_delta": -4.799999999999997
+      },
+      "Climbing Kit": {
+        "loot_delta": 0.0129999999999999,
+        "escape_delta": 0.0
+      },
+      "Mining Pick": {
+        "loot_delta": -0.1280000000000001,
+        "escape_delta": 0.20000000000000284
+      },
+      "Padded Pack": {
+        "loot_delta": 0.006000000000000227,
+        "escape_delta": 0.30000000000001137
+      },
+      "Cave Blade": {
+        "loot_delta": 0.0009999999999994458,
+        "escape_delta": 0.0
+      },
+      "Prospector Charm": {
+        "loot_delta": 0.0,
+        "escape_delta": 0.0
+      },
+      "Spare Battery": {
+        "loot_delta": -0.008000000000000895,
+        "escape_delta": 2.0
+      },
+      "Trail Map": {
+        "loot_delta": -0.37100000000000044,
+        "escape_delta": -0.19999999999998863
+      },
+      "Safety Harness": {
+        "loot_delta": -0.041999999999999815,
+        "escape_delta": 0.0
+      }
+    }
+  }
+}

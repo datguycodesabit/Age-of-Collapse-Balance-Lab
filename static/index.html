@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Age of Collapse · Balance Lab</title><link rel="stylesheet" href="/styles.css"><script src="/app.js" defer></script><script src="/large-study.js" defer></script></head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-title"><h2>Settings</h2><button class="text-button mobile-settings" id="toggle-settings" aria-expanded="false">Edit settings</button><button class="text-button" id="reset">Reset to test preset</button></div>
+  <label class="ruleset-select">Ruleset<select id="ruleset"><option value="dice">Dice · current</option><option value="decks">Shared decks · earlier</option><option value="independent">Independent draws · earlier</option></select></label>
+  <form id="settings" aria-label="Simulation settings"></form>
+  <div class="sidebar-bottom"><button id="run" class="primary">Run simulation</button><div class="button-row"><button id="save-settings">Export settings</button><label class="button" for="load-settings">Import settings</label><input id="load-settings" type="file" accept="application/json" hidden></div><p id="dirty" class="small muted" aria-live="polite"></p></div>
+</aside>
+<main>
+  <header><div><h1>Age of Collapse</h1><p class="subtitle" id="mode-summary">Cave simulator</p></div></header>
+  <nav class="tabs" aria-label="Simulator views"><button data-tab="overview" class="active">Overview</button><button data-tab="strategy-balance">Strategy balance</button><button data-tab="map-lab">Map</button><button data-tab="explorer">Replay</button><button data-tab="tuner">Settings search</button><button data-tab="rules">Rules</button><button data-tab="action-ev" hidden>Action audit</button></nav>
+  <div id="message" role="status" aria-live="polite" class="notice" hidden></div>
+  <div id="activity" class="activity" hidden><div><strong id="phase">Running</strong><span id="progress-text"></span></div><progress id="progress" max="100" value="0"></progress><button id="cancel" class="text-button">Cancel experiment</button></div>
+  <section id="overview" class="view">
+    <div class="section-heading"><div><h2>Latest run</h2><p id="run-info" class="muted small">No results yet</p></div><button id="export-results" disabled>Export player CSV</button></div>
+    <div id="metrics" class="metrics"></div>
+    <div class="chart-grid">
+      <article class="panel"><h3>Final scores</h3><div id="score-chart" class="chart"></div></article>
+      <article class="panel"><h3>First deposit by round</h3><div id="escape-chart" class="chart"></div></article>
+    </div>
+    <article class="panel table-wrap"><h3>Zone activity</h3>
+      <table><thead id="zone-head"></thead><tbody id="zone-activity"></tbody></table>
+      <p id="zone-note" class="muted small">Round averages include only players who reached that milestone.</p>
+    </article>
+    <div class="lower-grid">
+      <article class="panel table-wrap"><h3>Energy and gold costs</h3><p class="muted small">Average per player.</p><table><tbody id="budget-rows"></tbody></table></article>
+      <article class="panel table-wrap"><h3>Equipment</h3><table><thead id="equipment-head"></thead><tbody id="equipment-chart"></tbody></table>
+        <button id="go-strategy" class="text-button">Compare purchases against no gear</button></article>
+    </div>
+    <details id="run-comparison" class="panel table-wrap" hidden><summary>Compare with previous run</summary>
+      <table><thead><tr><th>Metric</th><th id="compare-previous"></th><th id="compare-current"></th></tr></thead><tbody id="compare-rows"></tbody></table>
+    </details>
+    <details class="panel table-wrap"><summary>Draws and potions</summary><table><thead><tr><th>Outcome</th><th>Draws</th><th>Share</th></tr></thead><tbody id="card-stats"></tbody></table><p id="deck-item-stats" class="small muted"></p><table><thead><tr><th>Potion</th><th>Found</th><th>Used</th></tr></thead><tbody id="potion-stats"></tbody></table></details>
+    <details class="panel"><summary>Energy and collapse</summary><div class="chart-grid"><div><h3>Energy at end of round</h3><div id="energy-chart" class="chart"></div></div><div><h3>Zones collapsed by deadline</h3><div id="collapse-chart" class="chart"></div></div></div><h3>Boss rolls in game 1</h3><div id="boss-example" class="boss-events"></div></details>
+  </section>
+  <section id="strategy-balance" class="view" hidden>
+    <div class="section-heading"><div><h2>Strategy balance</h2><p class="muted">Compare fixed and adaptive routes on the same seeds. One Zone 1 farm-and-bank player stays fixed.</p></div></div>
+    <article class="panel">
+      <div class="button-row">
+        <label>Games per lineup<input id="strategy-games" type="number" min="5" max="200" step="1" value="60" required></label>
+        <button id="strategy-load">Load current test preset</button>
+        <button id="strategy-run" class="primary">Run strategy study</button>
+        <button id="strategy-export" disabled>Export study JSON</button>
+      </div>
+      <p class="muted small">Uses your current map, settings, and seed. Requires five seats and Dice rules.</p>
+    </article>
+    <div id="strategy-results" hidden>
+      <article class="panel table-wrap">
+        <div class="panel-head">
+          <div><h3>Score and win chance by baseline role</h3><p id="strategy-context" class="muted small"></p></div>
+          <label>Lineup<select id="strategy-lineup"></select></label>
+        </div>
+        <p id="strategy-verdict" class="small"></p>
+        <table><thead><tr><th>Baseline role</th><th>Fixed score</th><th>Adaptive score</th><th>Adaptive score difference</th><th>Win chance per seat<br>Fixed / adaptive</th><th>90th-percentile gold<br>Fixed / adaptive</th><th>Gold when winning<br>Fixed / adaptive</th></tr></thead><tbody id="strategy-score-rows"></tbody></table>
+        <p class="muted small">Underground finishes score zero. Ties split win credit. Ranges are approximate 95% intervals grouped by game. Adaptive scores are grouped by the seat’s original baseline role, even if it chose a different zone.</p>
+      </article>
+      <article class="panel table-wrap">
+        <div class="panel-head"><h3>From entering a zone to banking</h3><label>Policy<select id="strategy-funnel-policy"><option value="fixed">Fixed routes</option><option value="adaptive">Adaptive routes</option></select></label></div>
+        <table><thead><tr><th>Baseline role</th><th>Entered target zone</th><th>Mined in target zone</th><th>Banked after mining</th><th>Banked and finished on Surface</th></tr></thead><tbody id="strategy-funnel-rows"></tbody></table>
+        <p class="muted small">Shares use all seats in the baseline role. Rounds are averages among seats that reached the stage. A later bank can include gold from any zone.</p>
+      </article>
+      <article class="panel table-wrap">
+        <h3>Why the adaptive bots changed course</h3>
+        <p id="strategy-reasons" class="muted small"></p>
+        <table><thead><tr><th>Seed · seat · round</th><th>From goal</th><th>To goal</th><th>Reason</th></tr></thead><tbody id="strategy-decision-rows"></tbody></table>
+      </article>
+      <article class="panel table-wrap">
+        <h3>Did the purchase pay off?</h3>
+        <p class="muted small">One seat attempts the purchase against four fixed no-buy opponents. Gold paid, purchase round, and direct savings are averages among buyers.</p>
+        <table><thead><tr><th>Route / item</th><th>Bought</th><th>Gold paid</th><th>Energy saved</th><th>Score vs. no buy</th><th>Win chance vs. no buy</th></tr></thead><tbody id="strategy-gear-rows"></tbody></table>
+      </article>
+    </div>
+  </section>
+  <section id="map-lab" class="view" hidden>
+    <div class="section-heading"><div><h2>Map</h2><p class="muted">Edit sites and gates, then compare travel distances.</p></div></div>
+    <div class="lower-grid">
+      <article class="panel">
+        <div class="button-row"><label for="map-preset">Layout preset</label><select id="map-preset"><option value="">Custom</option><option value="test">Current test map</option><option value="default">Original snake</option><option value="compact">Compact spine</option><option value="switchback">Rock switchbacks</option></select></div>
+        <label for="map-brush">Click a tile to place</label><select id="map-brush"><option value="F">F · Place farm</option><option value="M">M · Place regular mine</option><option value="S">S · Place shop</option><option value="#"># · Place rock</option><option value=".">. · Clear tile</option></select>
+        <div id="map-grid" class="board map-grid" aria-label="Editable cave map"></div>
+        <button id="map-clear-farms" type="button">Clear all farms</button>
+        <p class="legend small"><b>F</b> Special farm (two cards) · <b>M</b> Regular mine (one card) · <b>S</b> Shop · <b>#</b> Rock · <b>:</b> Planned route · <b>↕</b> Sole crossing through the wall. Surface is at the bottom.</p>
+        <label for="map-rows">Text layout <span class="muted">(Surface first, six characters per row)</span></label>
+        <textarea id="map-rows" rows="10" cols="12" spellcheck="false" autocomplete="off"></textarea>
+      </article>
+      <article class="panel">
+        <h3>Gateways</h3>
+        <p class="muted small">Click a wall segment on the map or choose a column below. Each boundary has one opening.</p>
+        <div id="map-gates" class="target-grid"></div>
+        <label class="map-check"><input type="checkbox" id="shop-detours"> Allow shop detours</label>
+        <p id="map-status" role="status" class="small muted"></p>
+        <h3>Walking distances</h3>
+        <p id="map-route-distance" class="muted small"></p>
+        <div class="table-wrap"><table><thead><tr><th>Farm</th><th>Entry to farm</th><th>Farm to next gate</th><th>Extra farm steps</th><th>Farm to shop</th><th>Farm to Surface</th></tr></thead><tbody id="map-distances"></tbody></table></div>
+        <p class="muted small">These are shortest paths in tile steps. Actual runs vary with gear, energy, purchases, knockdowns, and collapse.</p>
+        <div class="button-row map-actions"><button id="run-map" class="primary">Run this map</button><button id="watch-map">Run and watch</button></div>
+        <div id="map-comparison" hidden><h3>Current run versus previous run</h3><table><thead><tr><th>Metric</th><th>Previous</th><th>Current</th></tr></thead><tbody id="map-compare-rows"></tbody></table></div>
+      </article>
+    </div>
+    <article class="panel" id="route-diagnostics" hidden>
+      <h3>Latest route results</h3>
+      <p class="muted small" id="route-diagnostic-context"></p>
+      <div class="table-wrap"><table><thead><tr><th>Zone</th><th>Crossed into zone</th><th>First entry round</th><th>Underground at deadline</th><th>Killed by boss</th></tr></thead><tbody id="route-gates"></tbody></table></div>
+      <p id="route-activity" class="small"></p><p id="route-waits" class="small muted"></p>
+    </article>
+    <article class="panel">
+      <h3>Map comparisons</h3>
+      <p class="muted small">Conditions use matched seeds.</p>
+      <div class="button-row map-actions"><button id="load-escape-setup">Load earlier escape preset</button></div>
+      <div class="target-grid map-actions">
+        <label>Experiment<select id="route-study-kind"><option value="map">Search layouts by escape rate</option><option value="depth">Zone 2 versus Zone 3</option><option value="farm">Farm detour length</option><option value="retreat">Fixed vs energy-aware retreat</option><option value="gear">Equipment available vs unavailable</option></select></label>
+        <label id="route-study-zone-label">Farm to move<select id="route-study-zone"><option value="1">Zone 1</option><option value="2">Zone 2</option></select></label>
+        <label id="route-study-item-label" hidden>Equipment to test<select id="route-study-item"></select></label>
+        <label>Games per condition<input id="route-study-games" type="number" min="1" max="1000" step="1" value="250"></label>
+      </div>
+      <div id="map-study-controls" class="target-grid" hidden>
+        <label>Escape target (%)<input id="map-study-target" type="number" min="0" max="100" value="75"></label>
+        <label>Layouts to test<input id="map-study-count" type="number" min="4" max="96" value="48"></label>
+      </div>
+      <p class="muted small" id="route-study-help"></p>
+      <div class="button-row map-actions"><button id="run-route-study" class="primary">Run comparison</button></div>
+      <div id="route-study-result" class="table-wrap" hidden><p id="route-study-context" class="muted small"></p>
+        <table><thead id="route-study-head"></thead><tbody id="route-study-rows"></tbody></table>
+      </div>
+    </article>
+  </section>
+  <section id="action-ev" class="view" hidden>
+    <div class="section-heading"><div><h2>Action audit</h2><p class="muted">Compare a decision with one alternative in the independent-draw ruleset.</p></div></div>
+    <article class="panel">
+      <div class="target-grid">
+        <label>Games<input id="ev-games" type="number" value="200" min="1" max="500" step="1"></label>
+        <label>Minimum gold gain<input id="ev-minimum" type="number" value="1" min="0" step="0.1"></label>
+      </div>
+      <p class="muted small map-actions">Each pair uses the same seed. A positive score change favors the original action.</p>
+      <div class="button-row"><button id="run-ev" class="primary">Run audit</button></div>
+    </article>
+    <article class="panel table-wrap" id="ev-report" hidden>
+      <p id="ev-summary" class="muted small"></p>
+      <table><thead><tr><th>Action and alternative</th><th>Use frequency</th><th>Gold difference</th><th>Escape change</th><th>Signal</th></tr></thead><tbody id="ev-rows"></tbody></table>
+      <p class="muted small">Flags require 40 paired seats across 12 games and a positive 95% interval. Common actions must appear in at least 25% of player runs.</p>
+    </article>
+  </section>
+  <section id="tuner" class="view" hidden>
+    <div class="section-heading"><div><h2>Settings search</h2><p class="muted">Compare rule or map changes against your current setup.</p></div></div>
+    <details class="panel" id="large-study">
+      <summary>Large Study</summary>
+      <p class="muted">Cross several rule, deck and map choices. Compare the current setup and finalists across four opponent mixes.</p>
+      <div class="button-row study-controls"><button id="study-starter">Load Energy and farms template</button><button id="study-add-axis">Add axis</button></div>
+      <div id="study-axes"></div>
+      <details>
+        <summary>Maps and farm distances</summary>
+        <div class="target-grid">
+          <label>Saved map or settings files<input id="study-maps" type="file" accept=".json" multiple></label>
+          <label>Number of generated maps<input id="study-generated" type="number" min="0" max="40" value="0" required></label>
+          <label>Surface-to-farm steps by zone<input id="study-distances" value="1–59, 1–59, 1–59" aria-describedby="study-distance-help"></label>
+        </div>
+        <p id="study-distance-help" class="muted small">Generated maps keep each zone’s current farm count. Distance ranges apply to every farm in the zone.</p>
+      </details>
+      <div class="target-grid study-budgets">
+        <label>Candidate budget<input id="study-budget" type="number" min="1" max="600" value="96" required></label>
+        <label>Screening rotations<input id="study-screen" type="number" min="1" max="10" value="1" required></label>
+        <label>Refinement rotations<input id="study-refine" type="number" min="1" max="20" value="3" required></label>
+        <label>Fresh rotations<input id="study-fresh" type="number" min="1" max="40" value="10" required></label>
+      </div>
+      <div class="button-row study-controls"><button id="study-preview">Preview workload</button><button id="study-run" class="primary" disabled>Run previewed study</button></div>
+      <div id="study-preview-results" hidden></div>
+      <div class="button-row study-controls">
+        <label>Saved study<select id="study-saved"></select></label>
+        <button id="study-resume">Resume or open</button>
+      </div>
+      <div id="study-results" hidden>
+        <div class="section-heading"><div><h3>Fresh-seed tradeoffs</h3><p class="muted small" id="study-summary"></p></div>
+          <div class="button-row"><a class="button" id="study-export-json">Study JSON</a><a class="button" id="study-export-csv">Match CSV</a></div>
+        </div>
+        <div class="target-grid" id="study-views"></div>
+        <div class="target-grid study-controls">
+          <label>Compare setup<select id="study-finalists"></select></label>
+          <label>Strategy profiles<select id="study-profile"><option value="original">Original</option><option value="retuned" selected>Retuned</option></select></label>
+          <div class="button-row"><button id="study-apply">Apply &amp; run</button></div>
+        </div>
+        <div id="study-comparison"></div>
+        <details><summary>Screening heatmap</summary>
+          <div class="target-grid">
+            <label>Horizontal axis<select id="study-heat-x"></select></label>
+            <label>Vertical axis<select id="study-heat-y"></select></label>
+            <label>Metric<select id="study-heat-metric"><option value="middle">Zone 1 distance outside middle</option><option value="zone2">Zone 2 banked after mining</option><option value="zone3">Zone 3 winning score</option></select></label>
+          </div>
+          <div class="target-grid study-controls" id="study-heat-filters"></div>
+          <div class="table-wrap" id="study-heatmap"></div>
+        </details>
+      </div>
+    </details>
+    <article class="panel">
+      <div class="target-grid">
+        <label>Preset<select id="search-preset"></select></label>
+        <label>Screening games per matchup<input id="preset-screening" type="number" min="3" max="40" value="6"></label>
+        <label>Fresh games per matchup<input id="preset-holdout" type="number" min="3" max="80" value="12"></label>
+      </div>
+      <div class="search-footer">
+        <div><p id="preset-variants"></p><p id="preset-objective" class="muted small"></p></div>
+        <button id="run-preset-search" class="primary">Run preset</button>
+      </div>
+      <p class="muted small">Uses Dice rules. Each candidate plays the same seeds in four matchups: fixed and adaptive play, each with one shallow farmer or rotating shallow competition.</p>
+    </article>
+    <div id="preset-results" hidden>
+      <div class="section-heading"><div><h3 id="preset-outcome"></h3><p id="preset-meta" class="muted small"></p></div></div>
+      <div class="panel table-wrap">
+        <table><thead><tr><th scope="col">Setup</th><th scope="col">Screening penalty</th><th scope="col">Fresh-seed penalty</th><th scope="col">Change from current</th><th scope="col">Apply</th></tr></thead><tbody id="preset-ranks"></tbody></table>
+        <p class="muted small">Lower penalties rank higher. Each preset combines its stated criteria with shallow score balance and deep banking.</p>
+      </div>
+      <article class="panel">
+        <div class="panel-head"><h3>Fresh-seed results by matchup</h3><label>Compare with current setup<select id="preset-detail-picker"></select></label></div>
+        <div class="table-wrap"><table><thead><tr><th scope="col">Matchup</th><th scope="col">Setup</th><th scope="col">Mean score Z1 / Z2 / Z3</th><th scope="col">Seat win share Z1 / Z2 / Z3</th><th scope="col">Seats that mined Z1 / Z2 / Z3</th><th scope="col">Banked after mining Z3</th><th scope="col">Zone 3 winning score</th></tr></thead><tbody id="preset-route-details"></tbody></table></div>
+        <details><summary>Mining, decks, gear, combat and timing</summary><div id="preset-extra-details"></div></details>
+      </article>
+      <details class="panel"><summary>All screened candidates</summary><div class="table-wrap"><table><thead><tr><th scope="col">Setup</th><th scope="col">Screening penalty</th></tr></thead><tbody id="preset-all-screened"></tbody></table></div></details>
+    </div>
+    <details class="panel target-panel"><summary>Manual target search</summary>
+    <div class="target-grid manual-target-grid"><label>Metric to target<select id="target-metric" aria-describedby="target-help"></select></label><label>Goal<select id="target-direction"><option value="near">Close to</option><option value="at_least">At least</option><option value="at_most">At most</option></select></label><label>Target<input id="target-value" type="number" min="0" max="100" value="65" step="0.1"></label><label>Tolerance<input id="target-tolerance" type="number" min="0" value="3" step="0.1"></label></div>
+    <p class="muted small" id="target-help"></p>
+    <div class="section-heading compact"><div><h3>Allow these settings to change</h3><p class="muted small">Tick 1–4 rules. Min, max and step define the allowed values.</p></div><button id="add-range">Add another rule</button></div><div id="ranges"></div>
+    <div class="target-grid search-budget"><label>Candidate settings<input id="candidate-budget" type="number" min="5" max="150" value="60"></label><label>Player trials per candidate<input id="candidate-trials" type="number" min="50" max="1000" value="200"></label><label>Fresh-seed trials for top 5<input id="confirmation-trials" type="number" min="200" max="5000" value="1000"></label></div>
+    <div class="search-footer"><p class="muted small">Large grids are sampled. Shared-deck searches round trial counts up to complete matches. Rate tolerances use percentage points.</p><button id="search" class="primary">Search settings</button></div>
+    <div id="search-results" hidden><div class="section-heading"><div><h2 id="search-outcome"></h2><p id="search-meta" class="muted small"></p></div></div><div class="panel"><div id="candidate-chart" class="chart"></div><p class="muted small">Dots are screening results. The table uses fresh seeds.</p></div><div class="panel table-wrap"><table><thead><tr><th>Changed rules</th><th>Exploration</th><th>Fresh-seed result</th><th>Distance to target</th><th></th></tr></thead><tbody id="recommendations"></tbody></table></div><p class="muted small">Applying a candidate loads its settings and runs a simulation.</p></div>
+    </details>
+  </section>
+  <section id="explorer" class="view" hidden><div class="section-heading"><div><h2>Replay</h2></div><button id="export-log" disabled>Export this log</button></div><article class="panel"><label>Inspect player<select id="sample-picker"><option>Run a simulation first</option></select></label><p class="muted small">Up to 40 players are available to replay.</p><div class="replay-layout"><div><div id="board" class="board" aria-label="Six by ten cave board"></div><div class="legend small">Green: Surface · Sand: Zone 1 · Blue: Zone 2 · Purple: Zone 3<br>F Two-card farm · M One-card mine · S Shop · # Rock · ↕ Gate<br>· traversed · @ player · Grey ×: collapsed · †: killed by boss · Orange: boss zone</div></div><div><div id="sample-summary"></div><details><summary>Final game standings</summary><ol id="game-standings"></ol></details><div class="button-row"><button id="replay-play">Play</button><button id="replay-next">Next action</button></div><label>Replay step<input id="replay" type="range" min="0" max="0" value="0"></label><div id="step-detail" class="step-detail"></div></div></div></article><article class="panel table-wrap"><table><thead><tr><th>Round / action</th><th>Action</th><th>Tile</th><th>Home</th><th>Card</th><th>Energy out</th><th>Loot carried</th><th>Banked</th></tr></thead><tbody id="turn-rows"></tbody></table></article></section>
+  <section id="rules" class="view" hidden>
+    <div class="section-heading"><div><h2>Rules</h2><p class="muted">Reflects the settings currently selected.</p></div></div>
+    <article class="panel prose" id="active-rules"></article>
+    <article id="shared-rule-catalog" class="panel"><h3>Shared decks and items</h3><div id="zone-deck-spec"></div></article>
+    <details class="panel" id="earlier-rules"><summary>Earlier rules and experiments</summary>
+      <p class="muted small">These presets use earlier rules. Loading one replaces the current rules and map.</p>
+      <p class="small muted" id="cave-preset-context"></p>
+      <div class="button-row"><label>Preset<select id="cave-preset-variant"></select></label><label>Strategy<select id="cave-preset-policy"><option value="Deep">Deep route</option><option value="Mining">Mining</option><option value="Gear">Gear</option></select></label><button id="cave-preset" disabled>Load earlier preset</button><a id="cave-preset-report" href="/cave_balance.json" hidden>Results JSON</a></div>
+      <div id="cave-preset-table" class="table-wrap" hidden><table><thead><tr><th>Strategy</th><th>Gold / player</th><th>Gold / escapee</th><th>Escape</th></tr></thead><tbody id="cave-preset-rows"></tbody></table></div>
+      <div class="button-row"><button id="gear-original">Run original gear prices</button><button id="gear-tuned">Run tuned gear prices</button></div>
+    </details>
+  </section>
+</main></body></html>
