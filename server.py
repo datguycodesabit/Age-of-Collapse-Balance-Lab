@@ -123,6 +123,10 @@ class Handler(BaseHTTPRequestHandler):
                                       target_details=TARGET_DETAILS))
         if path == '/api/balance-preset':
             return self.send(200,json.loads(BALANCE_PRESET.read_text()))
+        if path == '/api/combat-preset':
+            return self.send(200,json.loads(BALANCE_PRESET.with_name('combat_playtest.json').read_text()))
+        if path == '/api/rolled-combat-preset':
+            return self.send(200,json.loads(BALANCE_PRESET.with_name('rolled_combat_playtest.json').read_text()))
         if path=='/api/large-studies':
             return self.send(200,large_study.saved_studies())
         if path.startswith('/api/large-studies/'):

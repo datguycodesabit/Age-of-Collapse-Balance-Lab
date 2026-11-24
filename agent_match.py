@@ -4,17 +4,18 @@ import random
 from dataclasses import asdict
 
 from engine import board_from, board_metadata, settings_from
-from model import (GEAR, GEAR_EFFECTS, POTIONS, Player, affordable_step, before, boss_effect,
-                   boss_timeline, buy, distance_home, drink_tonic, neighbors,
+from model import (GEAR, GEAR_EFFECTS, POTIONS, Player, affordable_step, before, boss_advance_threshold,
+                   boss_effect, boss_timeline, buy, distance_home, drink_tonic, moving_boss_round, neighbors,
                    perform, record, trim_treasures, zone_at)
 import zone_decks
 import dice_rules
+from enemy_profiles import boss_faces
 
 
 class AgentMatch:
     """Authoritative shared rounds. Saves are versioned deterministic command journals."""
 
-    VERSION = 3
+    VERSION = 5
 
     def __init__(self, settings=None, board=None):
         self.settings = settings_from(settings or {})
@@ -36,12 +37,17 @@ class AgentMatch:
             self.decks = zone_decks.shuffled_decks(settings.seed)
         else:
             self.decks = None
-        self._schedule = boss_timeline(settings, random.Random(settings.seed + 700000003))
+        self.boss_rng = random.Random(settings.seed + 700000003)
+        self._schedule = [] if settings.moving_boss else boss_timeline(settings, self.boss_rng)
+        self.boss_defeated_by = None
+        self.boss_combat_rng = random.Random(settings.seed + 431154793)
+        self.duel_rng = random.Random(settings.seed + 503663093)
         self.round = 1
         self.active = 0
         self.revision = 0
         self.complete = False
         self.closed = ()
+        self.forfeited = set()
         self.farm_uses = {}
         self.journal = []
         self.boss_events = []
@@ -56,6 +62,7 @@ class AgentMatch:
     def _refill(self):
         s = self.settings
         self.farm_uses.clear()
+        self.forfeited.clear()
         for p in self.players:
             if p.escaped or p.killed:
                 continue
@@ -74,7 +81,7 @@ class AgentMatch:
             self._finish()
             return
 
-        next_seat = next((seat for seat in remaining_seats if seat > self.active), None)
+        next_seat = next((seat for seat in remaining_seats if seat > self.active and seat not in self.forfeited), None)
         if next_seat is not None:
             self.active = next_seat
             return
@@ -91,8 +98,33 @@ class AgentMatch:
         self._refill()
         self.active = first_seat
 
+    def boss_status(self, roll_round=None):
+        s = self.settings
+        if (not s.moving_boss or not s.boss_enabled or self.round < s.boss_start
+                or 1 in self.closed or self.complete or self.boss_defeated_by is not None):
+            return None
+        zone = 3 - len(self.closed)
+        roll_round = self.round if roll_round is None else roll_round
+        threshold = boss_advance_threshold(s, roll_round) if roll_round <= s.turns else None
+        result = dict(zone=zone, tile=self.board.entrance(zone), hp=s.boss_hp,
+                    attack=s.boss_attack, hoard=s.boss_hoard,
+                    roll_round=roll_round if threshold else None, threshold=threshold,
+                    advance_chance=(7-threshold)/6 if threshold else None)
+        if s.rolled_enemy_attacks:
+            result['attack_faces'] = boss_faces(s)
+        return result
+
     def _resolve_round_boss(self):
-        event = self._schedule[self.round - 1]
+        if self.settings.moving_boss:
+            event = moving_boss_round(self.settings, self.boss_rng, self.round, self.closed)
+            if event['die']:
+                event['tile_before'] = self.board.entrance(event['threatened'])
+                zone = event['active_zone']
+                event['tile_after'] = self.board.entrance(zone) if zone else None
+            self._schedule.append(event)
+        else:
+            event = self._schedule[self.round - 1]
+        self.closed = tuple(event['closed'])
         if event['die']:
             self.boss_events.append(copy.deepcopy(event))
             for seat, player in enumerate(self.players):
@@ -104,20 +136,25 @@ class AgentMatch:
                     row = boss_effect(player, event, self.settings)
                     if self.decks is not None:
                         trim_treasures(player)
-                self.logs[seat].append(dict(row, turn=self.round))
-        self.closed = tuple(event['closed'])
+                row['turn'] = self.round
+                if self.settings.moving_boss:
+                    row.update(boss=self.boss_status(self.round + 1), boss_event=event)
+                self.logs[seat].append(row)
 
     def _finish(self):
         self.complete = True
         if self.settings.dice_rules:
-            for player in self.players:
-                player.escaped = not player.killed and zone_at(player.position) == 0
+            for seat, player in enumerate(self.players):
+                player.escaped = not player.killed and (zone_at(player.position) == 0
+                                                        or seat == self.boss_defeated_by)
         self.active = None
 
     def _execute(self, p, rng, action):
         """Single model action; called on copies when enumerating legal commands."""
         s = self.settings
         kind = action.get('kind')
+        if kind == 'AttackBoss':
+            return dice_rules.attack_boss(self, p, self.boss_combat_rng)
         if s.dice_rules and kind in ('Move','Mine','Use','Buy'):
             return dice_rules.resolve(self,p,rng,action)
         if self.decks is not None and kind in ('Move','Mine','Use','Buy'):
@@ -203,18 +240,40 @@ class AgentMatch:
     def _commit(self,command):
         """Apply a command checked against the current legal action list."""
         actor = self.active
-        row = self._execute(self.players[actor], self.rngs[actor], command['action'])
+        action = command['action']
+        if action['kind'] == 'AttackPlayer':
+            target = action['target']
+            row, defense = dice_rules.duel(self, actor, target)
+            if defense['knockdown'] == 'Yes':
+                self.forfeited.add(target)
+            self._log_action(target, defense)
+        else:
+            row = self._execute(self.players[actor], self.rngs[actor], action)
+        if row.get('boss_defeated'):
+            self.boss_defeated_by = actor
+            self._finish()
+            row['escaped'] = 'Yes'
+            for seat, player in enumerate(self.players):
+                if seat != actor and not player.killed:
+                    self._log_action(seat, record(
+                        player, before(player), self.settings, 'Boss defeated', self.closed,
+                        card=f'Player {actor + 1} defeated the boss and banked the hoard'))
+        self._log_action(actor, row)
+        self.journal.append(copy.deepcopy(command))
+        self.revision += 1
+        if not self.complete and (action['kind'] in ('EndTurn', 'Extract') or row['knockdown'] == 'Yes'):
+            self._advance()
+        return dict(accepted=True, reason='ok', revision=self.revision, event=copy.deepcopy(row))
+
+    def _log_action(self, actor, row):
         row['turn'] = self.round
         if self.decks is not None:
             row['deck_remaining'] = {zone:len(cards) for zone,cards in self.decks.items()}
             row['sword']=self.players[actor].sword
             row['shield']=self.players[actor].shield
+        if self.settings.moving_boss:
+            row['boss'] = self.boss_status()
         self.logs[actor].append(row)
-        self.journal.append(copy.deepcopy(command))
-        self.revision += 1
-        if command['action']['kind'] in ('EndTurn', 'Extract') or row['knockdown'] == 'Yes':
-            self._advance()
-        return dict(accepted=True, reason='ok', revision=self.revision, event=copy.deepcopy(row))
 
     @staticmethod
     def _valid_action_shape(action):
@@ -226,6 +285,8 @@ class AgentMatch:
                     and len(destination) == 2 and all(type(v) is int for v in destination))
         if action['kind'] == 'Buy':
             return set(action) == {'kind', 'item'} and isinstance(action.get('item'), str)
+        if action['kind'] == 'AttackPlayer':
+            return set(action) == {'kind', 'target'} and type(action['target']) is int
         if action['kind'] == 'Mine' and 'pick' in action:
             return set(action)=={'kind','pick'} and type(action['pick']) is int
         if action['kind']=='Mine' and 'destination' in action:
@@ -287,6 +348,10 @@ class AgentMatch:
                 observation['catalog']['items']['Speed Potion']='Single use. Double the range of your next move.'
             if self.settings.shop_gold_prices:
                 observation['catalog']['items']['Coupon']='Permanent. Reduce the gold cost of each purchase by 1.'
+        if self.settings.moving_boss:
+            observation.update(boss=self.boss_status(), boss_defeated_by=self.boss_defeated_by)
+        if self.settings.player_duels:
+            observation['forfeited_this_round'] = sorted(self.forfeited)
         return observation
 
     def serialize(self):
@@ -298,7 +363,7 @@ class AgentMatch:
     def restore(cls, data):
         if not isinstance(data, dict) or set(data) != {'version', 'settings', 'board', 'commands'}:
             raise ValueError('Invalid match save.')
-        if type(data['version']) is not int or data['version'] not in (1, 2, cls.VERSION) or not isinstance(data['commands'], list):
+        if type(data['version']) is not int or data['version'] not in (1, 2, 3, 4, cls.VERSION) or not isinstance(data['commands'], list):
             raise ValueError('Unsupported match save version or journal.')
         if not isinstance(data['settings'], dict) or not isinstance(data['board'], dict):
             raise ValueError('Match save requires settings and a board.')

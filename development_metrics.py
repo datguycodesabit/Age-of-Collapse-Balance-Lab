@@ -72,6 +72,8 @@ class DevelopmentMetrics:
                         if exchange['shield_absorbed']:
                             used.add('Shield')
             self.energy['combat'] += combat
+            if action in ('Challenge', 'Fight boss'):
+                self.energy['combat'] += row['action_cost']
         for zone, turn in entered.items():
             self.entry_rounds[zone].append(turn)
         for zone, turn in mined.items():

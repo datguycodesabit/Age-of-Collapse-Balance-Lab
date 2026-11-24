@@ -7,7 +7,7 @@ state-file path. The simulator owns all state; agents choose commands.
 Create a match with four players and existing balance defaults:
 
 ```sh
-python3 agent_cli.py create --state /tmp/aoc-match.json
+python3 outputs/local_web_simulator/agent_cli.py create --state /tmp/aoc-match.json
 ```
 
 For two players or another setup, write a configuration file containing
@@ -47,14 +47,14 @@ see shared supply without revealing its order.
 Read your observation:
 
 ```sh
-python3 agent_cli.py observe --state /tmp/aoc-match.json --actor 0
+python3 outputs/local_web_simulator/agent_cli.py observe --state /tmp/aoc-match.json --actor 0
 ```
 
 If `active_actor` equals your seat, choose an object from `legal_actions` and
 submit it with the current revision:
 
 ```sh
-python3 agent_cli.py act --state /tmp/aoc-match.json --actor 0 \
+python3 outputs/local_web_simulator/agent_cli.py act --state /tmp/aoc-match.json --actor 0 \
   --command '{"actor":0,"revision":0,"action":{"kind":"Delve","destination":[0,1]}}'
 ```
 
@@ -64,6 +64,35 @@ the command's `actor` identifies the acting seat. Responses contain `result` and
 Rejections preserve the save, revision, Energy, loot and all random streams.
 Refresh the observation after `stale_revision`.
 
+## Combat playtest
+
+Create a match with the combat preset from the repository root.
+
+```sh
+python3 outputs/local_web_simulator/agent_cli.py create --state /tmp/aoc-combat.json \
+  --config outputs/local_web_simulator/playtests/rolled_combat_playtest.json
+```
+
+Select an offered `{"kind":"AttackPlayer","target":1}` to challenge the
+adjacent seat, or `{"kind":"AttackBoss"}` to challenge the boss at its gate.
+Both cost 1 Energy and require Energy left after payment. A duel ends when a
+player reaches zero Energy. The loser hands all carried Treasure to the
+winner and forfeits the rest of the round. Both players see the duel exchanges
+in their logs. The boss heals if it knocks its challenger down.
+
+In the rolled preset, each Monster profile has an archetype, fixed HP, and
+six damage faces. A surviving enemy rolls a separate d6 after the player's
+strike. Combat exchange logs include `enemy_roll`, `raw_attack`,
+`shield_absorbed`, and `energy_lost`. A null `enemy_roll` means the player
+landed the killing blow. The fixed-counter preset remains available as
+`playtests/combat_playtest.json`.
+
+`boss` shows the current gate, HP, counterattack, hoard, and next advance odds.
+`boss_events` shows rolls that already happened. A boss kill makes `complete`
+true immediately and sets `boss_defeated_by` to the killer's seat. The killer
+gets the banked hoard and qualifies for scoring with living players on
+Surface. Use `winners` for the final result.
+
 ## Coordinator loop
 
 1. Create one match. Assign one agent per seat and provide this document and
@@ -71,7 +100,8 @@ Refresh the observation after `stale_revision`.
 2. Read an observation and dispatch the active seat. The agent can issue
    several commands per turn. Every accepted command advances the revision.
 3. `EndTurn`, `Extract`, or a monster knockdown hands off to the next active
-   seat. Inactive agents should wait for dispatch instead of repeatedly polling.
+   seat. A duel loser also loses any remaining turn that round. Inactive
+   agents should wait for dispatch instead of repeatedly polling.
 4. After all living, unextracted seats finish, the simulator resolves one shared
    boss roll, advances the round, refills Energy once and resets mining limits.
 5. Stop at `complete`. Record `standings` and `winners`. The configured final
@@ -88,7 +118,7 @@ Suggested player-agent prompt:
 > read or edit the save, simulator code, or another seat's observations. Do not
 > run another player's commands. Preserve your strategy between turns.
 
-## Rules and observations
+## Earlier independent-draw rules
 
 Escapees compete on banked treasure; ties share first. No escapees means no
 winner. The layout and boss rolls are shared. Encounters, visited tiles, mines,

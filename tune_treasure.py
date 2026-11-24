@@ -7,7 +7,7 @@ from math import ceil
 from statistics import mean
 
 from agent_match import AgentMatch
-from dice_rules import farm_open, mining_goal
+from dice_rules import choose_pick, combat_choice, farm_open, mining_goal, monster_risk
 from model import dice_move_reach, path_between, zone_at
 
 
@@ -54,6 +54,8 @@ def choose(match, depth, policy, actions):
     position = player.position
     zone = zone_at(position)
     if player.pick_pending:
+        if settings.rolled_enemy_attacks:
+            return choose_pick(match, actions)
         # The pending cards are public to this seat only.
         priorities = {'Treasure': 3, 'Item': 2, 'Nothing': 1, 'Monster': 0}
         def pick_value(action):
@@ -87,6 +89,10 @@ def choose(match, depth, policy, actions):
         player.loot >= policy.deposit[depth-1] or (depth == 1 and future <= 1)
     )
     returning = must_return or cash_out or (zone == 0 and not can_afford_excursion)
+    if settings.player_duels or settings.moving_boss:
+        combat = combat_choice(match, actions, returning=returning)
+        if combat:
+            return combat
     if returning and position == board.start:
         return END
     if depth > 1 and policy.gear and round_index <= 7:
@@ -127,7 +133,10 @@ def choose(match, depth, policy, actions):
         pick = {'kind': 'Use', 'item': 'Pickaxe'}
         if pick in actions:
             return pick
-        if not player.loot or player.energy >= cost + hit*(1 if depth == 1 else 2):
+        safe_draw = player.energy >= cost + hit*(1 if depth == 1 else 2)
+        if settings.rolled_enemy_attacks:
+            safe_draw = monster_risk(settings, zone, player, player.energy-cost)[0] <= .35
+        if not player.loot or safe_draw:
             grenade = {'kind': 'Use', 'item': 'Grenade'}
             return grenade if grenade in actions else mine
 

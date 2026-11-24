@@ -1,11 +1,12 @@
+from collections import Counter
+from dataclasses import replace
 import json
 import unittest
 
 from adaptive_route import adaptive_action, pick_plan
 from agent_match import AgentMatch
 from balance_study import analyze, lineup, route_record, summarize_routes
-from engine import board_from, settings_from
-from tune_sites import ROUTES
+from engine import board_from, settings_from, shared_game
 from tune_turn_length import PRESET
 
 
@@ -38,7 +39,26 @@ class StrategyStudyTests(unittest.TestCase):
         retreat=pick_plan(match)
         self.assertEqual(retreat.goal,match.board.start)
         actions=match.legal_actions(0)
-        self.assertIn(adaptive_action(match,retreat,actions,ROUTES[2]),actions)
+        self.assertIn(adaptive_action(match,retreat,actions),actions)
+
+    def test_default_simulation_mines_where_deck_odds_pay_off(self):
+        def draws(settings):
+            totals = Counter()
+            for trial in range(4):
+                _, players = shared_game(settings, self.board, trial, 5, None)
+                for player in players:
+                    for row in player['rows']:
+                        if row['farm_zone']:
+                            totals[row['farm_zone']] += row['draw_count']
+            return totals
+
+        rich = replace(self.settings, treasure_min2=30, treasure_max2=30)
+        rare = replace(rich, deck_treasures2=1)
+        rich_draws = draws(rich)
+        self.assertGreater(rich_draws[2], rich_draws[1] + rich_draws[3])
+        self.assertGreater(rich_draws[2], draws(self.settings)[2])
+        self.assertGreater(rich_draws[2], draws(rare)[2])
+        self.assertEqual(draws(replace(rich, max_zone=1))[2], 0)
 
     def test_funnel_counts_only_banks_after_mining_and_tracks_qualification(self):
         match=AgentMatch(self.preset['settings'],self.preset['board'])

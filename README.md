@@ -30,6 +30,9 @@ Follow one action through the code in this order.
 1. [`engine.py`](engine.py) uses `experiment()` to run games and summarize the
    results. In shared-deck modes, `shared_game()` opens one `AgentMatch` per
    game and asks the bot policy to choose from the active seat's legal actions.
+   Regular Dice runs use [`adaptive_route.py`](adaptive_route.py) to score
+   sites by configured deck odds, Treasure values, travel, and combat risk.
+   Explicit fixed-depth runs remain available for strategy comparisons.
 2. [`agent_match.py`](agent_match.py) owns the players, shared decks, and turn
    order. `submit()` checks the actor, revision, and action. `_commit()` records
    each accepted action, then advances the turn after an end-turn command,
@@ -44,6 +47,29 @@ Follow one action through the code in this order.
 
 Run `python3 -m unittest test_dice_rules test_agent_match` from this folder
 to see examples of legal and rejected commands, round transitions, and save replay.
+
+## Combat playtest
+
+Select **Load combat playtest**, then **Run simulation**. The five-seat Dice
+preset uses Striker, Balanced, and Tank monsters, rolled enemy attacks,
+player duels, and a fightable boss. Under **Rules → Monster profiles and
+fight odds**, edit the HP or the six d6 damage values for each profile.
+Run again to refresh the win-rate table. The table uses Energy after mining
+and zone-level gear without Bow or Grenade bonuses. Replay shows both combat
+dice, Shield block, and Energy lost, as well as boss movement and standings.
+
+**Load fixed-counter combat** opens the previous preset for comparison.
+Run `python3 tune_enemy_combat.py` from this directory to reproduce the
+matched training grid and 1,000-game holdout comparison.
+
+The boss closes at most one zone at the end of each round. The odds from
+Round 12 are 2 in 6, 3 in 6, 4 in 6, and 5 in 6. The chance of all three
+zones closing by the Round 15 deadline is 47 in 108 if the boss survives.
+Defeating it banks the hoard and ends the match. The killer and anyone
+living on Surface are ranked by banked gold.
+
+Use [rolled_combat_playtest.json](playtests/rolled_combat_playtest.json) with the
+[agent CLI](AGENT_PLAY.md) to issue combat commands directly.
 
 ## Mac app
 

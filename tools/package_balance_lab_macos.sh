@@ -58,7 +58,8 @@ for module in "$source_dir"/*.py; do
     cp "$module" "$simulator/"
 done
 ditto "$source_dir/static" "$simulator/static"
-cp "$source_dir/playtests/deep_upside_no_cache.json" "$simulator/playtests/"
+cp "$source_dir/playtests/deep_upside_no_cache.json" "$source_dir/playtests/combat_playtest.json" \
+    "$source_dir/playtests/rolled_combat_playtest.json" "$simulator/playtests/"
 
 unpack_runtime() {
     mkdir -p "$2"

@@ -1,5 +1,6 @@
 """Matched searches for common dice balance questions."""
 from collections import Counter, defaultdict
+from copy import deepcopy
 from dataclasses import asdict, replace
 from statistics import mean, stdev
 
@@ -47,7 +48,7 @@ CATALOG = {
               'Favor useful purchases and better banking from Zones 2 and 3.'),
     'tonic': ('Zone 3 entrance tonic', 'Entrance tonic off, +2 Energy, or +3 Energy.',
               'Favor mining and returning to bank from Zone 3.'),
-    'boss': ('Boss pressure', 'Vary boss arrival by one round or its collapse threshold by one face.',
+    'boss': ('Boss pressure', 'Vary boss arrival, fixed collapse threshold, or moving boss HP.',
              'Favor fewer forced ejections while retaining meaningful collapse pressure.'),
     'rounds': ('Round limit and table time', 'Compare 14, 15 and 16 rounds. Use the tabletop action-time estimates.',
                'Favor shorter matches with enough time to mine deep, bank and finish on Surface.'),
@@ -84,6 +85,19 @@ def numeric_variants(key,s):
                 if monster_swap else {})}
             for zone in (1,2,3) for delta in (-2,2) for monster_swap in (False,True)]
     if key=='combat':
+        if s.rolled_enemy_attacks:
+            trials = []
+            for zone in ('2','3'):
+                for delta in (-1, 1):
+                    profiles = deepcopy(s.monster_profiles)
+                    for profile in profiles[zone].values():
+                        profile['hp'] = max(1, profile['hp'] + delta)
+                    trials.append(dict(monster_profiles=profiles))
+                    profiles = deepcopy(s.monster_profiles)
+                    for profile in profiles[zone].values():
+                        profile['faces'] = [max(0, min(20, hit + delta)) for hit in profile['faces']]
+                    trials.append(dict(monster_profiles=profiles))
+            return trials
         return [
             {f'hp_min{zone}':max(1,getattr(s,f'hp_min{zone}')+delta),
              f'hp_max{zone}':getattr(s,f'hp_max{zone}')+delta}
@@ -96,14 +110,19 @@ def numeric_variants(key,s):
     if key=='boots':
         return [{'boots_price':n} for n in (1,2,3)]+[{'boots_move_range':n} for n in (3,4,5)]
     if key=='arms':
-        return [{field:n} for field,values in (
+        fields = (
             ('sword_price',(1,2,3)),('shield_price',(1,2,3)),
             ('sword_damage_bonus',(0,1,2)),('shield_block_per_level',(1,2)))
-                for n in values]
+        return [{field:n} for field,values in fields if not s.rolled_enemy_attacks
+                or field != 'shield_block_per_level' for n in values]
     if key=='tonic':
         return [{'deep_entry_tonic':0}]+[
             {'deep_entry_tonic':1,'deep_tonic_energy':n} for n in (2,3)]
     if key=='boss':
+        if s.moving_boss:
+            return [dict(boss_enabled=1,**{field:getattr(s,field)+delta})
+                    for field, deltas in (('boss_start', (-1, 1)), ('boss_hp', (-4, 4)))
+                    for delta in deltas]
         return [
             dict(boss_enabled=1,**{field:getattr(s,field)+delta})
             for field in ('boss_start','boss_threshold') for delta in (-1,0,1)]
@@ -196,7 +215,16 @@ def variants(key,s,board):
         except ValueError:
             # Custom baselines may have no room for another card or a lower HP.
             continue
-        output.append(dict(label='Rule change',changes=changes,board=layout))
+        label = 'Rule change'
+        if 'monster_profiles' in changes:
+            for zone, group in changes['monster_profiles'].items():
+                before = s.monster_profiles[zone]['Balanced']
+                after = group['Balanced']
+                if before != after:
+                    field = 'HP' if before['hp'] != after['hp'] else 'counterattack'
+                    label = f'Zone {zone} {field} {"raised" if after["hp"] > before["hp"] or sum(after["faces"]) > sum(before["faces"]) else "lowered"}'
+                    break
+        output.append(dict(label=label,changes=changes,board=layout))
     return output
 
 
@@ -207,7 +235,8 @@ def match_metrics(match):
     for command in match.journal:
         actions[command['actor']].append(command['action'])
     for seat,rows in enumerate(match.logs):
-        real_actions=[row for row in rows if not row['boss_roll']]
+        real_actions=[row for row in rows if not row['boss_roll']
+                      and row['action'] not in ('Defend duel', 'Boss defeated')]
         if len(real_actions)!=len(actions[seat]):
             raise RuntimeError('Timing requires one action row per accepted command.')
         for action,row in zip(actions[seat],real_actions):
@@ -219,6 +248,8 @@ def match_metrics(match):
     purchases=[row for row in rows if row['action'].startswith('Buy ')]
     exchanges=[exchange for row in rows for combat in row.get('combat_events',())
                for exchange in combat['exchanges']]
+    exchanges.extend(exchange for row in rows if row['action'] == 'Challenge'
+                     for exchange in row['duel']['exchanges'])
     return dict(draws=[50-len(match.decks[z]) for z in (1,2,3)], turn_times=list(turn_times.values()),
                 minutes=(sum(turn_times.values())+shared_time)/60,
                 knockdowns=sum(row['knockdown']=='Yes' for row in rows),

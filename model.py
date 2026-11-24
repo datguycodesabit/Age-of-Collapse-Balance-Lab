@@ -4,6 +4,7 @@ import random
 from collections import deque
 from dataclasses import dataclass, field, replace
 from functools import lru_cache
+from enemy_profiles import profile_defaults, validate_profiles
 
 
 @dataclass
@@ -52,6 +53,14 @@ class Settings:
     boss_enabled: int = 1
     boss_start: int = 12
     boss_threshold: int = 4
+    moving_boss: int = 0
+    boss_hp: int = 24
+    boss_attack: int = 4
+    boss_hoard: int = 35
+    player_duels: int = 0
+    rolled_enemy_attacks: int = 0
+    boss_challenge_pct: int = 55
+    monster_profiles: dict = field(default_factory=profile_defaults)
     boss_loot_loss: int = 2
     boss_energy_hit: int = 2
     pick_price: int = 5
@@ -144,6 +153,12 @@ FIELDS = [
     ('Boss','boss_enabled','Enable monster boss (1=yes, 0=no)'),('Boss','boss_start','Boss arrives on turn'),
     ('Boss','boss_threshold','Advance on d6 roll at least'),('Boss','boss_loot_loss','Loot lost per boss ejection'),
     ('Boss','boss_energy_hit','Energy lost per boss ejection'),
+    ('Dice rules','player_duels','Enable player duels'),
+    ('Dice rules','moving_boss','Enable moving, fightable boss'),
+    ('Dice rules','rolled_enemy_attacks','Roll enemy attacks and use monster profiles'),
+    ('Dice rules','boss_challenge_pct','Minimum bot boss win chance (%)'),
+    ('Dice rules','boss_hp','Final boss HP'),('Dice rules','boss_attack','Final boss counterattack'),
+    ('Dice rules','boss_hoard','Final boss hoard (gold)'),
     ('Knockdown','lose_depth','Zones pushed back'),('Knockdown','lose_loot','Loot lost'),
     ('Monsters','hp1','Zone 1 monster HP'),('Monsters','atk1','Zone 1 monster attack'),
     ('Monsters','hp2','Zone 2 monster HP'),('Monsters','atk2','Zone 2 monster attack'),
@@ -356,6 +371,23 @@ def boss_timeline(s,rng):
         events.append(dict(turn=turn,die=die,threatened=threatened,collapse=collapse,entrance_sealed=active==0,
                            active_zone=active if threatened else 0,closed=sorted(closed)))
     return events
+
+
+def boss_advance_threshold(s, turn):
+    return max(2, 5 - (turn - s.boss_start))
+
+
+def moving_boss_round(s, rng, turn, closed):
+    zone = 3 - len(closed)
+    threatened = zone if s.boss_enabled and turn >= s.boss_start else 0
+    threshold = boss_advance_threshold(s, turn) if threatened else None
+    die = rng.randint(1, 6) if threatened else 0
+    collapse = zone if threatened and die >= threshold else 0
+    if collapse:
+        closed = tuple(sorted((*closed, collapse)))
+    return dict(turn=turn, die=die, threatened=threatened, collapse=collapse,
+                entrance_sealed=1 in closed, active_zone=3-len(closed) if threatened else 0,
+                closed=list(closed), threshold=threshold)
 
 
 @dataclass
@@ -817,7 +849,7 @@ def player_result(p,rows,closed,change_applied=False):
 
 def validate(s):
     for name,value in vars(s).items():
-        if name=='treasure_profiles':
+        if name in ('treasure_profiles', 'monster_profiles'):
             continue
         if not isinstance(value,(int,float)) or isinstance(value,bool) or not math.isfinite(value): raise ValueError('%s must be finite.'%name)
         if Settings.__dataclass_fields__[name].type is int and int(value)!=value: raise ValueError('%s must be a whole number.'%name)
@@ -854,6 +886,17 @@ def validate(s):
         raise ValueError('Dice rules require shared zone decks.')
     if s.dice_rules and s.cap>10:
         raise ValueError('Dice rules cap Energy at 10.')
+    if s.player_duels not in (0, 1) or s.moving_boss not in (0, 1):
+        raise ValueError('Player duels and moving boss must be 0 or 1.')
+    if (s.player_duels or s.moving_boss) and not s.dice_rules:
+        raise ValueError('Player duels and the moving boss require Dice rules.')
+    if s.rolled_enemy_attacks not in (0, 1) or s.rolled_enemy_attacks and not s.dice_rules:
+        raise ValueError('Rolled enemy attacks require Dice rules and must be 0 or 1.')
+    if not 1 <= s.boss_challenge_pct <= 100:
+        raise ValueError('Minimum bot boss win chance must be 1–100%.')
+    validate_profiles(s.monster_profiles)
+    if not (1 <= s.boss_hp <= 100 and 0 <= s.boss_attack <= 20 and 1 <= s.boss_hoard <= 100):
+        raise ValueError('Boss HP and hoard must be 1–100 and attack must be 0–20.')
     for zone in (1,2,3):
         if not 1<=getattr(s,f'hp_min{zone}')<=getattr(s,f'hp_max{zone}')<=100:
             raise ValueError('Monster HP range must be ordered and between 1 and 100.')

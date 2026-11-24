@@ -417,6 +417,50 @@ class HTTPTests(unittest.TestCase):
         for path in ('/','/app.js','/styles.css','/api/config'):
             status,data=self.send('GET',path);self.assertEqual(status,200);self.assertTrue(data)
 
+    def test_combat_preset_runs_and_exposes_the_front_in_replay(self):
+        import time
+        status, data = self.send('GET', '/api/combat-preset')
+        self.assertEqual(status, 200)
+        payload = json.loads(data)
+        self.assertEqual((payload['settings']['player_duels'], payload['settings']['moving_boss']), (1, 1))
+        payload['settings'].update(runs=3, boss_start=1)
+        status, data = self.send('POST', '/api/simulate', json.dumps(payload), {'Content-Type': 'application/json'})
+        self.assertEqual(status, 202)
+        identifier = json.loads(data)['id']
+        for _ in range(500):
+            _, data = self.send('GET', '/api/jobs/' + identifier)
+            job = json.loads(data)
+            if job['state'] != 'running':
+                break
+            time.sleep(.01)
+        self.assertEqual(job['state'], 'complete', job.get('error'))
+        result = job['result']
+        self.assertIn('duels', result['metrics'])
+        row = result['samples'][0]['rows'][0]
+        self.assertEqual((row['boss']['tile'], row['boss']['threshold']), ([0, 7], 5))
+        self.assertEqual(result['boss_example'][0]['tile_before'], [0, 7])
+
+    def test_rolled_combat_preset_exposes_editable_profiles_and_fight_odds(self):
+        import time
+        status, payload = self.send('GET', '/api/rolled-combat-preset')
+        self.assertEqual(status, 200)
+        payload = json.loads(payload)
+        self.assertEqual((payload['settings']['rolled_enemy_attacks'], payload['settings']['boss_hp']), (1, 32))
+        payload['settings']['runs'] = 3
+        status, data = self.send('POST', '/api/simulate', json.dumps(payload), {'Content-Type': 'application/json'})
+        self.assertEqual(status, 202)
+        identifier = json.loads(data)['id']
+        for _ in range(500):
+            _, data = self.send('GET', '/api/jobs/' + identifier)
+            job = json.loads(data)
+            if job['state'] != 'running':
+                break
+            time.sleep(.01)
+        self.assertEqual(job['state'], 'complete', job.get('error'))
+        result = job['result']
+        self.assertEqual(len(result['settings']['monster_profiles']['3']), 3)
+        self.assertEqual(len(result['enemy_odds']), 45)
+
     def test_strategy_balance_endpoint(self):
         import time
         status,data=self.send('GET','/api/balance-preset')

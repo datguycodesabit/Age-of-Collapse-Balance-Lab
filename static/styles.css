@@ -60,6 +60,7 @@ header { margin-bottom: 20px; }
 .map-grid .zone-wall button:hover { background: #dcebcf; }
 .map-grid + #map-clear-farms { margin: 4px 0 12px; }
 .tile.boss-zone{outline:1px solid #c86636}
+.tile.boss-marker{outline:2px solid #a2442d;color:#702c1d;font-weight:800}
 .tile.collapsed{background:#656a66;color:#e6e8e1;border-color:#565e58;outline:none}
 .tile.current{border:2px solid #855e15}
 

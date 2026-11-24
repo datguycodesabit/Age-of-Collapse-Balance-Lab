@@ -32,12 +32,15 @@ class Timing:
 
     def action_seconds(self, action, event):
         base = {'Move': self.move, 'Mine': self.mine, 'Buy': self.buy,
-                'Use': self.use, 'Tonic': self.use, 'EndTurn': self.end_turn}
+                'Use': self.use, 'Tonic': self.use, 'EndTurn': self.end_turn,
+                'AttackPlayer': 0, 'AttackBoss': 0}
         seconds = base[action['kind']] + event['draw_count'] * self.card
         if action['kind'] == 'Move':
             seconds += self.move * (event.get('move_steps',1)-1)
         seconds += self.combat_exchange * sum(
             len(combat['exchanges']) for combat in event.get('combat_events', ()))
+        if action['kind'] == 'AttackPlayer':
+            seconds += self.combat_exchange * len(event['duel']['exchanges'])
         if event.get('banked_now', 0):
             seconds += self.bank
         return seconds

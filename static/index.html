@@ -4,6 +4,8 @@
 <aside class="sidebar">
   <div class="sidebar-title"><h2>Settings</h2><button class="text-button mobile-settings" id="toggle-settings" aria-expanded="false">Edit settings</button><button class="text-button" id="reset">Reset to test preset</button></div>
   <label class="ruleset-select">Ruleset<select id="ruleset"><option value="dice">Dice · current</option><option value="decks">Shared decks · earlier</option><option value="independent">Independent draws · earlier</option></select></label>
+  <button class="text-button" id="load-combat">Load combat playtest</button>
+  <button class="text-button" id="load-fixed-combat">Load fixed-counter combat</button>
   <form id="settings" aria-label="Simulation settings"></form>
   <div class="sidebar-bottom"><button id="run" class="primary">Run simulation</button><div class="button-row"><button id="save-settings">Export settings</button><label class="button" for="load-settings">Import settings</label><input id="load-settings" type="file" accept="application/json" hidden></div><p id="dirty" class="small muted" aria-live="polite"></p></div>
 </aside>
@@ -229,6 +231,11 @@
   <section id="rules" class="view" hidden>
     <div class="section-heading"><div><h2>Rules</h2><p class="muted">Reflects the settings currently selected.</p></div></div>
     <article class="panel prose" id="active-rules"></article>
+    <details class="panel" id="monster-profiles" hidden><summary>Monster profiles and fight odds</summary>
+      <div class="table-wrap"><table><thead><tr><th>Zone</th><th>Type</th><th>HP</th><th>Damage on d6 faces 1–6</th></tr></thead><tbody id="monster-profile-rows"></tbody></table></div>
+      <p class="small muted">Run the simulation to refresh odds. Energy is measured after paying to mine, with no items and gear at the zone’s level.</p>
+      <div class="table-wrap"><table><thead><tr><th>Zone</th><th>Type</th><th>Energy</th><th>No gear</th><th>Sword</th><th>Shield</th><th>Both</th></tr></thead><tbody id="monster-odds-rows"></tbody></table></div>
+    </details>
     <article id="shared-rule-catalog" class="panel"><h3>Shared decks and items</h3><div id="zone-deck-spec"></div></article>
     <details class="panel" id="earlier-rules"><summary>Earlier rules and experiments</summary>
       <p class="muted small">These presets use earlier rules. Loading one replaces the current rules and map.</p>

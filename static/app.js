@@ -3,6 +3,7 @@ const $ = id => document.getElementById(id);
 let config, testPreset, result, previous, searchResult, activeJob, caveBalance, busy=false;
 let exactTreasureProfiles={};
 const controls = new Map();
+const monsterControls = [];
 const labels = {};
 const limits = {
   turns:[1,60,1],players:[1,20,1],runs:[1,5000,1],seed:[0,9007199254740991,1],
@@ -15,6 +16,8 @@ const limits = {
   climbing_price:[0,30,1],buy_boots:[0,1,1],buy_flashlight:[0,1,1],buy_climbing:[0,1,1],
   farm_visits:[0,20,1],farm_cost:[1,20,1],mine_cost:[1,20,1],boss_enabled:[0,1,1],boss_start:[1,201,1],
   boss_threshold:[1,6,1],boss_loot_loss:[0,30,1],boss_energy_hit:[0,30,1],
+  player_duels:[0,1,1],moving_boss:[0,1,1],boss_hp:[1,100,1],boss_attack:[0,20,1],boss_hoard:[1,100,1],
+  rolled_enemy_attacks:[0,1,1],boss_challenge_pct:[1,100,1],
   gear_slots:[0,10,1],gear_priority:[0,4,1],max_zone:[1,3,1],route_policy:[0,3,1],
   blade_savings:[0,5,1],pack_protection:[0,5,1],charm_bonus:[0,5,1],battery_gain:[0,5,1],
   potion_chance:[0,100,0.1],use_potions:[0,1,1],deep_entry_tonic:[0,1,1],
@@ -65,6 +68,8 @@ const help = {
   boss_enabled:'1 enables the shared per-game boss. 0 disables collapse.',
   boss_start:'First end-of-turn d6 roll; boss starts in Zone 3.',
   boss_threshold:'A successful die roll moves the monster toward Surface. The third advance seals the entrance.',
+  player_duels:'1 enables full Energy duels between adjacent underground players.',
+  moving_boss:'1 enables rising advance odds and lets players challenge the boss at its gate.',
   boss_loot_loss:'Carried loot lost when ejected from a collapsing zone.',
   boss_energy_hit:'Energy lost when ejected from Zone 3 or 2. The final seal kills everyone still underground.'
 };
@@ -82,6 +87,14 @@ function readSettings(){
     settings[key]=Number(number.value);
   }
   settings.treasure_profiles=structuredClone(exactTreasureProfiles);
+  settings.monster_profiles={};
+  for(const {zone,name,hp,faces} of monsterControls){
+    const rolls=faces.value.split('/').map(value=>value.trim());
+    if(!hp.checkValidity()||!hp.value||rolls.length!==6||rolls.some(value=>!/^\d+$/.test(value)||Number(value)>20)){
+      throw Error(`Zone ${zone} ${name}: enter HP from 1–100 and six damage values from 0–20 separated by slashes.`);
+    }
+    (settings.monster_profiles[zone]??={})[name]={hp:hp.valueAsNumber,faces:rolls.map(Number)};
+  }
   return settings;
 }
 const earlierDiceFields = new Set([
@@ -91,6 +104,9 @@ const earlierDiceFields = new Set([
 ]);
 const diceMovementFields = new Set(['delve','retreat','dark_cost','rough_cost']);
 function showActiveSettings(dice, shared, fullMove){
+  const movingBoss=dice&&$('setting-moving_boss')?.valueAsNumber===1;
+  const rolled=dice&&$('setting-rolled_enemy_attacks')?.valueAsNumber===1;
+  $('monster-profiles').hidden=!rolled;
   $('ruleset').value=dice?'dice':shared?'decks':'independent';
   const auditTab=document.querySelector('[data-tab="action-ev"]');
   if(shared&&auditTab.classList.contains('active'))tab('overview');
@@ -108,6 +124,10 @@ function showActiveSettings(dice, shared, fullMove){
       || dice&&(earlierDiceFields.has(key)||earlierGear||fullMove&&diceMovementFields.has(key)
         || !fullMove&&key==='boots_move_range')
       || !dice&&(group==='Dice rules'||key==='start_energy')
+      || movingBoss&&key==='boss_threshold'
+      || !movingBoss&&['boss_hp','boss_attack','boss_hoard'].includes(key)
+      || (!movingBoss||!rolled)&&key==='boss_challenge_pct'
+      || rolled&&(/^(atk|hp_min|hp_max)[123]$/.test(key)||key==='shield_block_per_level')
       || !shared&&group==='Zone decks';
   }
   for(const details of $('settings').querySelectorAll('details[data-group]')){
@@ -142,12 +162,21 @@ function renderRules(s){
     :'Earlier shop menus and item effects are under Equipment.';
   const boss=s.boss_enabled?`From round ${s.boss_start}, roll one shared d6 at round end. A ${s.boss_threshold}+ collapses the next zone. The third collapse kills anyone underground.`
     :'Collapse is disabled.';
-  const combat=dice?`<h3>Combat</h3><p>Roll a d6 plus weapon bonuses. A surviving monster hits Energy after Shield blocks ${s.shield_block_per_level} per level. A hit that takes you to zero drops carried gold and ends the turn.</p>
+  const bossDamage=s.rolled_enemy_attacks
+    ? `rolls ${[1,1,2,4,7,9].map(hit=>Math.max(0,hit+s.boss_attack-4)).join('/')} damage across the six faces`
+    : `hits for ${s.boss_attack}`;
+  const movingBoss=s.moving_boss&&s.boss_enabled
+    ? `The boss starts at the Zone 3 gate in round ${s.boss_start}. The end-of-round advance needs 5+ on a d6, then 4+, 3+, and 2+ for later rounds. Each advance closes one zone and moves the boss toward Surface. The final advance seals the entrance. Challenge the boss at its gate or an adjacent tile in its zone for 1 Energy. It has ${s.boss_hp} HP and ${bossDamage} before Shield block. It heals after defeating a challenger. A killing blow banks ${s.boss_hoard} gold and ends the match. The killer and living players on Surface rank by banked gold.` : boss;
+  const duels=s.player_duels
+    ? '<p>Spend 1 Energy to challenge an adjacent opponent with Energy remaining in your underground zone. You strike first and alternate hits until one player falls. The loser transfers their carried Treasure, is knocked back, and forfeits any remaining turn that round.</p>' : '';
+  const combat=s.rolled_enemy_attacks
+    ? '<h3>Combat</h3><p>Roll a d6 plus weapon bonuses. A surviving monster rolls its counterattack. Shield levels block 2, 3, or 5 damage in all combat. A hit that takes you to zero knocks you down and ends your turn.</p>'
+    : dice?`<h3>Combat</h3><p>Roll a d6 plus weapon bonuses. A surviving monster hits Energy after Shield blocks ${s.shield_block_per_level} per level. A hit that takes you to zero drops carried gold and ends the turn.</p>
     <div class="table-wrap"><table><thead><tr><th>Zone</th><th>Monster HP</th><th>Attack</th><th>Bounty</th><th>Treasure range</th></tr></thead><tbody>${[1,2,3].map(z=>`<tr><td>${z}</td><td>${s['hp_min'+z]}–${s['hp_max'+z]}</td><td>${s['atk'+z]}</td><td>${s['bounty'+z]}</td><td>${s['treasure_min'+z]}–${s['treasure_max'+z]}</td></tr>`).join('')}</tbody></table></div>`:'';
   $('active-rules').innerHTML=`<h3>Movement and mining</h3><p>${dice?`Start with ${s.start_energy} Energy. `:''}Gain ${s.gain} per round, up to ${s.cap}. ${movement}</p>
     <p>Mine for ${s.mine_cost} Energy (one card). Farm for ${s.farm_cost} (up to two cards). Each site can be used once per player per round. ${dice&&s.farm_shared_limit?`Each farm has ${s.farm_shared_limit} shared activations per round. `:''}${dice?'Walking draws no cards.':''}</p>
     ${dice&&s.deep_entry_tonic&&s.use_potions?`<p>The Zone 3 entrance Tonic restores up to ${s.deep_tonic_energy} Energy when used.</p>`:''}
-    <h3>Banking and shops</h3><p>${banking}</p><p>${shop}</p>${combat}<h3>Collapse</h3><p>${boss}</p>
+    <h3>Banking and shops</h3><p>${banking}</p><p>${shop}</p>${combat}${duels}<h3>Collapse</h3><p>${movingBoss}</p>
     ${shared?'<p>Each zone has 50 shared cards. Drawn cards stay out of the deck.</p>':''}`;
 }
 function markDirty(){
@@ -187,7 +216,7 @@ function markDirty(){
   }
   try{
     const s=readSettings();
-    const changed=!result||Object.keys(s).some(k=>k==='treasure_profiles'
+    const changed=!result||Object.keys(s).some(k=>['treasure_profiles','monster_profiles'].includes(k)
       ? JSON.stringify(s[k])!==JSON.stringify(result.settings[k]??{}) : s[k]!==result.settings[k])
       || JSON.stringify(readMap())!==JSON.stringify(result.board.layout);
     $('dirty').textContent=changed?'Run to apply changes.':'Results are up to date.';
@@ -198,6 +227,13 @@ function markDirty(){
 }
 function setSettings(s){
   if(Object.hasOwn(s,'treasure_profiles'))exactTreasureProfiles=structuredClone(s.treasure_profiles??{});
+  if(Object.hasOwn(s,'monster_profiles')){
+    for(const {zone,name,hp,faces} of monsterControls){
+      const profile=s.monster_profiles[zone][name];
+      hp.value=profile.hp;
+      faces.value=profile.faces.join('/');
+    }
+  }
   for(const [key,{number,slider}]of controls){
     if(!(key in s))continue;
     number.max=Math.max(limits[key][1],s[key]);number.value=s[key];
@@ -206,6 +242,15 @@ function setSettings(s){
   markDirty();
 }
 function buildSettings(){
+  for(const [zone,profiles] of Object.entries(config.defaults.monster_profiles)){
+    for(const name of ['Balanced','Striker','Tank']){
+      const row=$('monster-profile-rows').insertRow();
+      row.innerHTML=`<td>${zone}</td><td>${name}</td><td><input type="number" value="${profiles[name].hp}" min="1" max="100" required aria-label="Zone ${zone} ${name} HP"></td><td><input value="${profiles[name].faces.join('/')}" aria-label="Zone ${zone} ${name} d6 damage"></td>`;
+      const [hp,faces]=row.querySelectorAll('input');
+      monsterControls.push({zone,name,hp,faces});
+      row.oninput=markDirty;
+    }
+  }
   const decks=$('zone-deck-spec');
   for(const zone of Object.keys(config.zone_decks)){
     const line=document.createElement('p');
@@ -288,7 +333,7 @@ async function request(path,data){
   const body=await r.json();if(!r.ok)throw Error(body.error||`Request failed (${r.status})`);return body;
 }
 function setBusy(value){
-  busy=value;['run','search','reset','add-range','load-settings','gear-original','gear-tuned','run-map','watch-map','run-route-study','load-escape-setup','run-ev','strategy-load','ruleset'].forEach(id=>$(id).disabled=value);
+  busy=value;['run','search','reset','load-combat','load-fixed-combat','add-range','load-settings','gear-original','gear-tuned','run-map','watch-map','run-route-study','load-escape-setup','run-ev','strategy-load','ruleset'].forEach(id=>$(id).disabled=value);
   $('strategy-run').disabled=value||$('ruleset').value!=='dice';
   $('run-preset-search').disabled=value||$('ruleset').value!=='dice';
   $('cave-preset').disabled=value||!caveBalance;
@@ -332,6 +377,16 @@ function applyTestPreset(){
   setMap(testPreset.board,'test');
 }
 $('reset').onclick=()=>{applyTestPreset();notice('Test preset loaded. Run to refresh results.');};
+async function loadCombatPreset(path){
+  try{
+    const preset=await request(path);
+    setSettings({...config.legacy_defaults,...preset.settings});
+    setMap(preset.board,'test');
+    notice('Combat playtest loaded. Run to refresh results.');
+  }catch(error){notice(error.message,true);}
+}
+$('load-combat').onclick=()=>loadCombatPreset('/api/rolled-combat-preset');
+$('load-fixed-combat').onclick=()=>loadCombatPreset('/api/combat-preset');
 $('ruleset').onchange=()=>{
   const mode=$('ruleset').value;
   if(mode==='dice'){
@@ -445,11 +500,16 @@ function renderResults(){
   const {metrics:m,development:d,settings:s}=result;
   const {scored,surface_zero,underground,boss}=d.outcomes;
   const players=m.player_runs;
+  $('monster-odds-rows').innerHTML=(result.enemy_odds??[]).map(row=>
+    `<tr><td>${row.zone}</td><td>${esc(row.archetype)}</td><td>${row.energy}</td>${row.wins.map(win=>`<td>${percent(win)}</td>`).join('')}</tr>`
+  ).join('');
   $('metrics').innerHTML=[
     metricCard('Score per player',fmt(m.avg_score,2),`95% ${rangeText(m.score_ci,value=>fmt(value,2))} · zeros included`,true),
-    metricCard('Finished on Surface',percent((scored+surface_zero)/players),`${underground} stranded · ${boss} killed by boss`),
+    metricCard('Finished on Surface',percent(m.surface_rate==null?(scored+surface_zero)/players:m.surface_rate/100),`${underground} stranded · ${boss} killed by boss`),
     metricCard('First deposit',d.first_bank_median==null?'—':`Round ${fmt(d.first_bank_median,Number.isInteger(d.first_bank_median)?0:1)}`,'Median among players who banked'),
     metricCard('Finished with gold',percent(scored/players),`${surface_zero} finished on Surface with zero gold`),
+    ...(s.player_duels?[metricCard('Duels',fmt(m.duels,0),'Completed challenges')]:[]),
+    ...(s.moving_boss?[metricCard('Boss fights',fmt(m.boss_attempts,0),`${m.boss_wins} boss defeats`)]:[]),
   ].join('');
   const mode=s.dice_rules?'Dice':s.shared_decks?'Shared decks':'Independent draws';
   $('run-info').textContent=`${fmt(m.games,0)} games × ${s.players} players · ${s.turns} rounds · seed ${s.seed} · ${mode} · default bots`;
@@ -480,11 +540,13 @@ function renderResults(){
   barChart('collapse-chart',result.collapse_rates.map(p=>({label:`Zone ${p.zone}`,value:p.percent})),{unit:'Games (%)',max:100,color:'#b35d43'});
   $('boss-example').innerHTML=result.boss_example.filter(e=>e.die).map(e=>{
     const event=e.collapse===1?'Entrance sealed':e.collapse?`Zone ${e.collapse} collapsed`:`Held in Zone ${e.threatened}`;
-    return `<span class="boss-event"><b>Round ${e.turn} · ${e.die}</b><br>${event}</span>`;
+    const advance=e.tile_after&&e.collapse?` · moved to Zone ${e.active_zone} gate`:'';
+    const threshold=e.threshold?` / ${e.threshold}+ to advance`:'';
+    return `<span class="boss-event"><b>Round ${e.turn} · ${e.die}${threshold}</b><br>${event}${advance}</span>`;
   }).join('')||'No boss rolls.';
   $('run-comparison').hidden=!previous;
   if(previous){
-    const rows=[['Score per player','avg_score',2,''],['Finished on Surface','escape_rate',1,'%'],['Reached Zone 3','zone3_rate',1,'%'],['Gold spent per player','avg_equipment_spent',2,''],['Knockdowns per player','avg_knockdowns',2,'']];
+    const rows=[['Score per player','avg_score',2,''],['Qualified for scoring','escape_rate',1,'%'],['Reached Zone 3','zone3_rate',1,'%'],['Gold spent per player','avg_equipment_spent',2,''],['Knockdowns per player','avg_knockdowns',2,'']];
     $('compare-previous').textContent=`Previous · seed ${previous.settings.seed}`;
     $('compare-current').textContent=`Current · seed ${s.seed}`;
     $('compare-rows').innerHTML=rows.map(([label,key,digits,unit])=>`<tr><th scope="row">${label}</th><td>${fmt(previous.metrics[key],digits)}${unit}</td><td>${fmt(m[key],digits)}${unit}</td></tr>`).join('');
@@ -629,6 +691,7 @@ function presetSelection(){
   $('preset-objective').textContent=objective;
 }
 function describePresetCandidate(row,baseline){
+  if(row.changes.monster_profiles)return esc(row.label);
   const settings=Object.entries(row.changes).map(([k,v])=>`${esc(labels[k])} ${fmt(v,0)}`);
   if(settings.length)return settings.join('<br>');
   const moves=[];
@@ -659,7 +722,7 @@ function renderPresetResult(result){
     .map(row=>`<tr><td>${describePresetCandidate(row,baseline)}</td><td>${fmt(row.penalty,3)}</td></tr>`).join('');
   const picker=$('preset-detail-picker');
   picker.replaceChildren(...finalists.map((row,i)=>new Option(
-    `Finalist ${i+1} · ${Object.entries(row.changes).map(([k,v])=>`${labels[k]} ${v}`).join(', ')||row.label}`,i)));
+    `Finalist ${i+1} · ${row.changes.monster_profiles?row.label:Object.entries(row.changes).map(([k,v])=>`${labels[k]} ${v}`).join(', ')||row.label}`,i)));
   picker.onchange=()=>renderPresetDetails(baseline,finalists[Number(picker.value)]);
   picker.onchange();
 }
@@ -715,6 +778,7 @@ function buildPresetSearch(){
   presetSelection();
 }
 function playerOutcome(player){
+  if(player.boss_slayer)return 'Defeated the boss';
   if(player.killed)return 'Killed by boss';
   if(!player.escaped)return 'Stranded';
   return result.settings.dice_rules?'Finished on Surface':'Extracted';
@@ -763,11 +827,13 @@ function renderReplay(){
     const rock=mark==='#'&&!cleared.has([x,y].join(',')),mine=mark==='M';
     const cache=farm&&result.settings.deep_cache_loot&&result.board.farms['3']?.join(',')===[x,y].join(',');
     const tonic=gateTonicAvailable&&y===7&&gate&&!closed;
+    const bossMarker=index>=0&&r.boss?.tile[0]===x&&r.boss?.tile[1]===y;
     const tile=document.createElement('div');
-    tile.className=`tile z${zone}${current?' current':''}${rock?' rock':''}${closed?' collapsed':''}${index>=0&&r.boss_zone===zone&&zone>0?' boss-zone':''}`;
-    tile.textContent=current&&index>=0&&r.killed?'†':closed?'×':current?'@':rock?'#':farm?'F':mine?'M':blacksmith?'B':shop?'S':tonic?'T':gate?'↕':visited.has(`${x},${y}`)?'·':'.';
+    tile.className=`tile z${zone}${current?' current':''}${rock?' rock':''}${closed?' collapsed':''}${index>=0&&r.boss_zone===zone&&zone>0?' boss-zone':''}${bossMarker?' boss-marker':''}`;
+    tile.textContent=current&&index>=0&&r.killed?'†':closed?'×':bossMarker?(current?'@ ⚑':'⚑'):current?'@':rock?'#':farm?'F':mine?'M':blacksmith?'B':shop?'S':tonic?'T':gate?'↕':visited.has(`${x},${y}`)?'·':'.';
     tile.title=`(${x},${y}) · ${zone?'Zone '+zone:'Surface'}${farm?(cache?' · Farm and deep cache':' · Farm'):''}${mine?' · Regular mine':''}${shop?' · Shop':''}${gate?' · Gate':''}${rock?' · Rock':''}${closed?' · Collapsed':''}${current?' · Player':''}`;
     if(tonic)tile.title+=' · Unclaimed Energy Tonic';
+    if(bossMarker)tile.title+=' · Final boss';
     if(blacksmith)tile.title+=' · Level '+zone+' Blacksmith';
     board.append(tile);
     if(x===5&&Object.hasOwn(result.board.gates,y)){
@@ -783,7 +849,11 @@ function renderReplay(){
   if(r.card!=='—')notes.push(r.card);
   if(r.banked_now)notes.push(`Deposited ${r.banked_now} gold`);
   if(r.loot_spent||r.bank_spent)notes.push(`Paid ${r.loot_spent+(r.bank_spent??0)} gold`);
-  if(r.loot_penalty)notes.push(`Lost ${r.loot_penalty} carried gold`);
+  if(r.loot_penalty&&!r.duel)notes.push(`Lost ${r.loot_penalty} carried gold`);
+  if(r.duel)notes.push(`Player ${r.duel.winner+1} took ${r.duel.gold} carried gold`);
+  if(r.boss_hoard)notes.push(`Banked ${r.boss_hoard} gold from the boss hoard · Match ended`);
+  if(r.boss?.threshold)notes.push(`Boss at Zone ${r.boss.zone} gate · Round ${r.boss.roll_round} advance chance ${percent(r.boss.advance_chance)}`);
+  if(r.boss_event)notes.push(`Boss rolled ${r.boss_event.die} · ${r.boss_event.threshold}+ to advance`);
   if(r.knockdown==='Yes')notes.push('Knocked down');
   if(r.gate_tonic)notes.push('Found entrance tonic');
   if(r.potions_used.length)notes.push(`Used ${r.potions_used.join(', ')}`);
@@ -795,8 +865,14 @@ function renderReplay(){
   if(r.collapsed.length)facts.push(`Closed zones: ${r.collapsed.join(', ')}`);
   for(const fight of r.combat_events??[]){
     for(const hit of fight.exchanges??[]){
-      facts.push(`${fight.target}: d6 ${hit.roll} + ${hit.weapon+hit.bow+hit.grenade} bonuses → ${hit.damage} damage, ${hit.hp_left} HP left. Counterattack: ${hit.hit} Energy, ${hit.shield_absorbed} blocked.`);
+      const counter=hit.enemy_roll===null?'Killing blow':
+        hit.enemy_roll===undefined?`Counterattack: ${hit.hit} Energy, ${hit.shield_absorbed} blocked`:
+          `Counterattack d6 ${hit.enemy_roll}: ${hit.raw_attack} damage, ${hit.shield_absorbed} blocked, ${hit.energy_lost} Energy lost`;
+      facts.push(`${fight.target}: d6 ${hit.roll} + ${hit.weapon+hit.bow+hit.grenade} bonuses → ${hit.damage} damage, ${hit.hp_left} HP left. ${counter}.`);
     }
+  }
+  for(const hit of r.duel?.exchanges??[]){
+    facts.push(`Player ${hit.actor+1} rolled ${hit.roll} + ${hit.weapon+hit.bow+hit.grenade} bonuses. Player ${hit.target+1} blocked ${hit.shield_absorbed}, took ${hit.damage}, and has ${hit.energy} Energy left.`);
   }
   const details=facts.length?`<details><summary>Action details</summary><ul>${facts.map(fact=>`<li>${esc(fact)}</li>`).join('')}</ul></details>`:'';
   $('step-detail').innerHTML=`<b>Round ${r.turn} · ${esc(headline)}</b>
@@ -834,7 +910,7 @@ function runGearPreset(tuned){
   const legacyTerrain=readSettings().shared_decks
     ? {dark_cost:config.legacy_defaults.dark_cost,rough_cost:config.legacy_defaults.rough_cost,potion_chance:config.legacy_defaults.potion_chance}
     : {};
-  setSettings({...legacyTerrain,...prices,...switches,shared_decks:0,dice_rules:0,gear_priority:4,gear_slots:3});
+  setSettings({...legacyTerrain,...prices,...switches,shared_decks:0,dice_rules:0,player_duels:0,moving_boss:0,rolled_enemy_attacks:0,gear_priority:4,gear_slots:3});
   simulate();
 }
 $('gear-original').onclick=()=>runGearPreset(false);
@@ -846,7 +922,7 @@ $('load-settings').onchange=async e=>{
     const data=JSON.parse(await file.text());
     if(![1,2,3,4].includes(data.version)||!data.settings||typeof data.settings!=='object')throw Error('Choose a saved balance-settings.json file.');
     const migrated=Object.hasOwn(data.settings,'steps_per_turn');delete data.settings.steps_per_turn;
-    if(Object.keys(data.settings).some(k=>k!=='treasure_profiles'&&!controls.has(k)))throw Error('Unknown settings in file.');
+    if(Object.keys(data.settings).some(k=>!['treasure_profiles','monster_profiles'].includes(k)&&!controls.has(k)))throw Error('Unknown settings in file.');
     const merged={...config.legacy_defaults,deep_entry_tonic:0,...data.settings};
     if(merged.dice_rules && !Object.hasOwn(data.settings,'start_energy')){
       merged.start_energy=merged.gain;
@@ -855,6 +931,17 @@ $('load-settings').onchange=async e=>{
     for(const [key,value]of Object.entries(merged)){
       if(key==='treasure_profiles'){
         if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Invalid exact treasure profiles.');
+        continue;
+      }
+      if(key==='monster_profiles'){
+        const names=['Balanced','Striker','Tank'];
+        if(!value||Object.keys(value).length!==3||[1,2,3].some(zone=>
+          !value[zone]||Object.keys(value[zone]).length!==3||names.some(name=>{
+            const profile=value[zone][name];
+            return !profile||!Number.isInteger(profile.hp)||profile.hp<1||profile.hp>100
+              ||!Array.isArray(profile.faces)||profile.faces.length!==6
+              ||profile.faces.some(hit=>!Number.isInteger(hit)||hit<0||hit>20);
+          })))throw Error('Invalid monster profiles.');
         continue;
       }
       if(typeof value!=='number'||!Number.isFinite(value))throw Error('Settings must contain finite numbers.');

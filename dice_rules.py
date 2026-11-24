@@ -1,9 +1,11 @@
 """Dice expedition rules. Old shared-deck journals use their original resolver."""
 import heapq
+from functools import lru_cache
 import random
 from collections import deque
 from dataclasses import replace
 
+from enemy_profiles import ARCHETYPES, archetype_counts, boss_faces, fight_odds, shield_block
 from model import (affordable_step, before, boss_effect, dice_move_reach, distance_home,
                    movement_cost, neighbors, path_between, record, take_potion, zone_at)
 import zone_decks
@@ -46,6 +48,11 @@ def decks(settings):
                 minimum = getattr(settings, f'{field}_min{zone}')
                 maximum = getattr(settings, f'{field}_max{zone}')
                 value = value_rng.randint(minimum, maximum)
+            if kind == 'Monster' and settings.rolled_enemy_attacks:
+                card_index = int(name.rsplit(' ', 1)[1]) - 1
+                archetype = ARCHETYPES[card_index % len(ARCHETYPES)]
+                value = dict(settings.monster_profiles[str(zone)][archetype], archetype=archetype)
+                name = f'Z{zone} {archetype} {card_index + 1}'
             valued_pile.append((kind, name, value))
         valued_decks[zone] = valued_pile
 
@@ -228,6 +235,17 @@ def legal(match,actor):
                 actions.append(dict(kind='Move',destination=list(tile)))
     if not can_stop(match,p.position,taken):
         return actions
+    if zone and p.energy > 1 and (s.player_duels or s.moving_boss):
+        adjacent = neighbors(p.position, match.closed, match.board)
+        if s.player_duels:
+            actions.extend(dict(kind='AttackPlayer', target=seat)
+                           for seat, other in enumerate(match.players)
+                           if other is not p and not other.killed and not other.escaped
+                           and other.energy > 0 and zone_at(other.position) == zone
+                           and other.position in adjacent)
+        boss = match.boss_status()
+        if boss and boss['zone'] == zone and (boss['tile'] == p.position or boss['tile'] in adjacent):
+            actions.append(dict(kind='AttackBoss'))
     site=zone_decks.mine_kind(p)
     if (site and pile and p.position not in p.mined_this_turn
             and (site!='Farm' or farm_open(match,p.position))):
@@ -310,32 +328,198 @@ def move(match, p, action):
                   potions_found=['Energy Tonic'] if found_tonic else [], **travel)
 
 
-def fight(p, s, rng, zone, hp):
+def attack_bonuses(p, s):
+    sword = p.sword + s.sword_damage_bonus if p.sword else 0
+    bow = s.bow_savings if p.items.get('Bow') else 0
+    grenade = s.grenade_savings if p.grenade_armed else 0
+    return sword, bow, grenade
+
+
+def fight(p, s, rng, zone, hp, *, monster_attack=None, attack_faces=None):
     """Resolve each attack and surviving monster's counterattack in order."""
     exchanges = []
-    monster_attack = getattr(s, f'atk{zone}')
-    sword_damage = p.sword + s.sword_damage_bonus if p.sword else 0
-    bow_damage = s.bow_savings if p.items.get('Bow') else 0
-    shield_block = p.shield * s.shield_block_per_level
+    if monster_attack is None:
+        monster_attack = getattr(s, f'atk{zone}')
+    sword_damage, bow_damage, grenade_damage = attack_bonuses(p, s)
+    block = shield_block(s, p.shield)
 
     while hp > 0:
         roll = rng.randint(1, 6)
-        grenade_damage = s.grenade_savings if p.grenade_armed else 0
         p.grenade_armed = False
         damage = roll + sword_damage + grenade_damage + bow_damage
         hp = max(0, hp - damage)
 
-        counterattack = monster_attack if hp else 0
-        absorbed = min(shield_block, counterattack) if hp else 0
+        counter_die = rng.randint(1, 6) if hp and attack_faces is not None else None
+        counterattack = (attack_faces[counter_die-1] if counter_die else monster_attack) if hp else 0
+        absorbed = min(block, counterattack)
         energy_hit = counterattack - absorbed
+        energy_lost = min(p.energy, energy_hit)
         p.energy = max(0, p.energy - energy_hit)
         exchanges.append(dict(roll=roll, weapon=sword_damage, bow=bow_damage,
                               grenade=grenade_damage, damage=damage, hp_left=hp,
                               shield_absorbed=absorbed, hit=energy_hit, energy=p.energy))
+        if attack_faces is not None:
+            exchanges[-1].update(enemy_roll=counter_die, raw_attack=counterattack, energy_lost=energy_lost)
         # Mining may already have spent the last Energy. Only a hit causes defeat.
         if energy_hit and p.energy == 0:
             return exchanges, True
+        grenade_damage = 0
     return exchanges, False
+
+
+def knockback(match, player, zone):
+    safe_zone = max(0, zone - match.settings.lose_depth)
+    wanted = player.position if safe_zone == zone else match.board.exit(safe_zone)
+    player.position = landing(match, player, wanted, match.closed)
+
+
+def duel(match, actor, target):
+    """Resolve the whole duel and give each participant their own replay row."""
+    settings = match.settings
+    challenger, defender = match.players[actor], match.players[target]
+    starts = [before(challenger), before(defender)]
+    challenger.energy -= 1
+    striker, recipient = challenger, defender
+    strike_seat, hit_seat = actor, target
+    exchanges = []
+    while recipient.energy > 0:
+        roll = match.duel_rng.randint(1, 6)
+        sword, bow, grenade = attack_bonuses(striker, settings)
+        striker.grenade_armed = False
+        strike = roll + sword + bow + grenade
+        blocked = min(shield_block(settings, recipient.shield), strike - 1)
+        damage = strike - blocked
+        recipient.energy = max(0, recipient.energy - damage)
+        exchanges.append(dict(actor=strike_seat, target=hit_seat, roll=roll, weapon=sword,
+                              bow=bow, grenade=grenade, shield_absorbed=blocked,
+                              damage=damage, energy=recipient.energy))
+        if recipient.energy == 0:
+            break
+        striker, recipient = recipient, striker
+        strike_seat, hit_seat = hit_seat, strike_seat
+
+    stolen = recipient.loot
+    striker.treasures.extend(recipient.treasures)
+    striker.loot += stolen
+    recipient.treasures.clear()
+    recipient.loot = 0
+    knockback(match, recipient, zone_at(recipient.position))
+    rows = []
+    for seat, player, start in zip((actor, target), (challenger, defender), starts):
+        won = seat == strike_seat
+        cost = int(seat == actor)
+        rows.append(record(player, start, settings, 'Challenge' if cost else 'Defend duel', match.closed,
+                           card=f'Player {strike_seat + 1} won the duel', action_cost=cost,
+                           combat_cost=start['energy'] - player.energy - cost,
+                           duel=dict(actor=actor, target=target, winner=strike_seat, loser=hit_seat,
+                                     gold=stolen, exchanges=exchanges),
+                           loot_change=stolen if won else 0, loot_penalty=0 if won else stolen,
+                           knockdown='No' if won else 'Yes',
+                           depth_penalty=zone_at(start['position']) - zone_at(player.position)))
+    return rows
+
+
+def attack_boss(match, player, rng):
+    s = match.settings
+    start = before(player)
+    zone = zone_at(player.position)
+    player.energy -= 1
+    faces = boss_faces(s) if s.rolled_enemy_attacks else None
+    exchanges, defeated = fight(player, s, rng, zone, s.boss_hp, monster_attack=s.boss_attack, attack_faces=faces)
+    lost = hoard = 0
+    if defeated:
+        lost = player.loot
+        player.loot = 0
+        player.treasures.clear()
+        knockback(match, player, zone)
+    else:
+        hoard = s.boss_hoard
+        player.bank += hoard
+        player.bank_cards.append(hoard)
+    event = dict(action='Combat', target='Final boss', hp=s.boss_hp, exchanges=exchanges,
+                 energy=sum(hit['hit'] for hit in exchanges), bounty=hoard, defeated=defeated)
+    if faces is not None:
+        event.update(attack_faces=faces, sword=player.sword, shield=player.shield,
+                     grenade=bool(exchanges[0]['grenade']))
+    return record(player, start, s, 'Fight boss', match.closed,
+                  card='Boss defeated' if not defeated else 'Boss won and regained full health',
+                  action_cost=1, combat_cost=event['energy'], combat_events=[event],
+                  boss_attempt=True, boss_defeated=not defeated, boss_hoard=hoard,
+                  loot_penalty=lost, knockdown='Yes' if defeated else 'No',
+                  depth_penalty=zone - zone_at(player.position))
+
+
+@lru_cache(maxsize=8192)
+def boss_win_chance(hp, energy, bonus, grenade, counter):
+    return sum(1 if hp <= roll + bonus + grenade else
+               boss_win_chance(hp - roll - bonus - grenade, energy - counter, bonus, 0, counter)
+               if energy > counter else 0 for roll in range(1, 7)) / 6
+
+
+def boss_odds(settings, player, energy, grenade=None):
+    sword, bow, armed = attack_bonuses(player, settings)
+    grenade = armed if grenade is None else grenade
+    block = shield_block(settings, player.shield)
+    if settings.rolled_enemy_attacks:
+        hits = tuple(max(0, raw-block) for raw in boss_faces(settings))
+        return fight_odds(settings.boss_hp, energy, sword+bow, grenade, hits)[0]
+    return boss_win_chance(settings.boss_hp, energy, sword+bow, grenade,
+                           max(0, settings.boss_attack-block))
+
+
+def monster_risk(settings, zone, player, energy):
+    """Average fight outcomes across the configured mix, without peeking at cards."""
+    sword, bow, grenade = attack_bonuses(player, settings)
+    block = shield_block(settings, player.shield)
+    count = getattr(settings, f'deck_monsters{zone}')
+    if not count:
+        return 0.0, 0.0
+    knocked_down = energy_loss = 0.0
+    for name, copies in zip(ARCHETYPES, archetype_counts(count)):
+        if copies:
+            profile = settings.monster_profiles[str(zone)][name]
+            hits = tuple(max(0, raw-block) for raw in profile['faces'])
+            win, lost = fight_odds(profile['hp'], energy, sword+bow, grenade, hits)
+            knocked_down += copies*(1-win)
+            energy_loss += copies*lost
+    return knocked_down/count, energy_loss/count
+
+
+@lru_cache(maxsize=8192)
+def duel_win_chance(energy, other_energy, bonus, other_bonus, grenade, other_grenade):
+    return sum(1 if other_energy <= damage else
+               1 - duel_win_chance(other_energy - damage, energy, other_bonus, bonus, other_grenade, 0)
+               for damage in (max(1, roll + bonus + grenade) for roll in range(1, 7))) / 6
+
+
+def combat_choice(match, actions, returning=False):
+    """Use exact dice odds from current public positions and equipment."""
+    s = match.settings
+    actor = match.active
+    player = match.players[actor]
+    if {'kind': 'AttackBoss'} in actions:
+        leader = max((other.bank for other in match.players
+                      if not other.killed and zone_at(other.position) == 0), default=0)
+        threshold = s.boss_challenge_pct / 100 if s.rolled_enemy_attacks else .65
+        if player.bank + s.boss_hoard >= leader and boss_odds(s, player, player.energy-1) >= threshold:
+            return dict(kind='AttackBoss')
+    if not returning:
+        sword, bow, grenade = attack_bonuses(player, s)
+        best = None
+        for action in actions:
+            if action['kind'] != 'AttackPlayer':
+                continue
+            other = match.players[action['target']]
+            other_sword = other.sword + s.sword_damage_bonus if other.sword else 0
+            chance = duel_win_chance(player.energy-1, other.energy,
+                                    sword+bow-shield_block(s, other.shield),
+                                    other_sword-shield_block(s, player.shield),
+                                    grenade, 0)
+            if chance >= .80 and (best is None or chance > best[0]):
+                best = (chance, action)
+        if best is not None:
+            return best[1]
+    return None
 
 
 def mine(match,p,rng,action):
@@ -393,19 +577,20 @@ def mine(match,p,rng,action):
             p.items[name] = p.items.get(name, 0) + 1
             found_items.append(name)
         elif kind == 'Monster':
-            exchanges, defeated = fight(p, settings, rng, zone, value)
+            hp, faces = (value['hp'], value['faces']) if isinstance(value, dict) else (value, None)
+            exchanges, defeated = fight(p, settings, rng, zone, hp, attack_faces=faces)
             energy_hit = sum(exchange['hit'] for exchange in exchanges)
             combat_cost += energy_hit
             bounty = 0 if defeated else getattr(settings, f'bounty{zone}')
-            combat_events.append(dict(action='Combat', target=name, hp=value, exchanges=exchanges,
+            combat_events.append(dict(action='Combat', target=name, hp=hp, exchanges=exchanges,
                                       energy=energy_hit, bounty=bounty, defeated=defeated))
+            if faces is not None:
+                combat_events[-1].update(archetype=value['archetype'], attack_faces=faces)
             if defeated:
                 loot_lost = p.loot
                 p.treasures.clear()
                 p.loot = 0
-                safe_zone = max(0, zone - settings.lose_depth)
-                exit_tile = p.position if safe_zone == zone else match.board.exit(safe_zone)
-                p.position = landing(match, p, exit_tile, match.closed)
+                knockback(match, p, zone)
                 # Leave the rest of the batch in the deck after a knockdown.
                 break
             if bounty:
@@ -495,6 +680,22 @@ def resolve_boss(match,p,event):
     return row
 
 
+def choose_pick(match, actions):
+    rank = {'Treasure': 3, 'Item': 2, 'Nothing': 1, 'Monster': 0}
+    pile = match.decks[zone_at(match.players[match.active].position)]
+    def value(action):
+        kind, _, stats = pile[action['pick']]
+        if isinstance(stats, dict):
+            p = match.players[match.active]
+            sword, bow, grenade = attack_bonuses(p, match.settings)
+            block = shield_block(match.settings, p.shield)
+            hits = tuple(max(0, hit-block) for hit in stats['faces'])
+            stats = fight_odds(stats['hp'], p.energy-mining_cost(match.settings, zone_decks.mine_kind(p)),
+                               sword+bow, grenade, hits)[0]
+        return rank[kind], stats or 0
+    return max(actions, key=value)
+
+
 def automated_choice(match,actions,depth,returning):
     from model import return_turns_needed
 
@@ -503,9 +704,7 @@ def automated_choice(match,actions,depth,returning):
     zone=zone_at(p.position)
     end={'kind':'EndTurn'}
     if p.pick_pending:
-        rank={'Treasure':3,'Item':2,'Nothing':1,'Monster':0}
-        pile=match.decks[zone]
-        return max(actions,key=lambda a:(rank[pile[a['pick']][0]],pile[a['pick']][2] or 0))
+        return choose_pick(match, actions)
     target_depth=1 if match.round<=3 else depth
     while target_depth in match.closed:
         target_depth-=1
@@ -533,6 +732,10 @@ def automated_choice(match,actions,depth,returning):
     if goal is None:
         home=True
         goal=p.board.start
+    if s.player_duels or s.moving_boss:
+        combat = combat_choice(match, actions, returning=home)
+        if combat:
+            return combat
     if not home and zone==target_depth and p.position==goal:
         if not match.decks[zone] and zone<depth and zone+1 not in match.closed:
             goal=mining_goal(match,p,zone+1)
@@ -546,7 +749,9 @@ def automated_choice(match,actions,depth,returning):
             pick_action=dict(kind='Use',item='Pickaxe')
             if mine_action in actions:
                 attack=max(0,getattr(s,f'atk{zone}')-p.shield*s.shield_block_per_level)
-                if pick_action in actions or p.energy>=mining_cost(s,zone_decks.mine_kind(p))+attack or p.loot==0:
+                energy = p.energy-mining_cost(s,zone_decks.mine_kind(p))
+                safe_draw = monster_risk(s, zone, p, energy)[0] <= .35 if s.rolled_enemy_attacks else energy >= attack
+                if pick_action in actions or safe_draw or p.loot==0:
                     return pick_action if pick_action in actions else mine_action
     else:
         path=path_between(p.position,goal,match.closed,p.board)

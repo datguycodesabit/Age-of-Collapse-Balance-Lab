@@ -9,6 +9,8 @@ from model import (Settings, Board, DEFAULT_BOARD, GEAR, POTIONS, GATES,
                    player_result, return_turns_needed)
 import zone_decks
 import dice_rules
+from enemy_profiles import odds_table
+from adaptive_route import adaptive_action, pick_plan
 from development_metrics import DevelopmentMetrics
 
 METRICS = {
@@ -187,7 +189,7 @@ def settings_from(data):
     if 'steps_per_turn' in data: raise ValueError('Fixed step limits were removed. Reload the app or import your saved settings to migrate them.')
     if set(data)-set(defaults): raise ValueError('Unknown setting.')
     for key, value in data.items():
-        if key=='treasure_profiles':
+        if key in ('treasure_profiles', 'monster_profiles'):
             defaults[key]=value
             continue
         if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
@@ -201,7 +203,7 @@ def settings_from(data):
         dice_rules.deck_composition(s)
     if s.seed > 2**53-1:
         raise ValueError('Seed must be at most 9007199254740991.')
-    if max(abs(v) for k,v in defaults.items() if k not in ('seed','treasure_profiles')) > 1000000:
+    if max(abs(v) for k,v in defaults.items() if k not in ('seed','treasure_profiles','monster_profiles')) > 1000000:
         raise ValueError('Setting values must be at most 1,000,000.')
     return s
 
@@ -237,9 +239,11 @@ def shared_game(s, board, game_index, players, cancel, depths=None):
         elif not s.adaptive_retreat and match.round >= s.retreat_start:
             retreating.add(actor)
         actions = match.legal_actions(actor)
-        if s.dice_rules:
-            depth = depths[actor] if depths is not None else s.max_zone
-            action = dice_rules.automated_choice(match, actions, depth, actor in retreating)
+        if s.dice_rules and depths is None:
+            plan = pick_plan(match, returning=actor in retreating)
+            action = adaptive_action(match, plan, actions)
+        elif s.dice_rules:
+            action = dice_rules.automated_choice(match, actions, depths[actor], actor in retreating)
         else:
             action = zone_decks.automated_choice(match, actions, actor in retreating)
         # The policy chose from the current legal list, so skip a second enumeration.
@@ -254,6 +258,9 @@ def shared_game(s, board, game_index, players, cancel, depths=None):
         if s.dice_rules:
             # Forfeited final banks remain visible in replay, but cannot score.
             result['score'] = player.bank if player.escaped else 0
+        if s.moving_boss:
+            result['surface'] = player.escaped and zone_at(player.position) == 0
+            result['boss_slayer'] = match.boss_defeated_by == len(results)
         results.append(result)
     return match._schedule, results
 
@@ -282,6 +289,7 @@ def experiment(s, sample_limit=40, player_count=None, cancel=None, board=DEFAULT
     gear_use_counts=dict.fromkeys(GEAR,0)
     potion_counts={name:dict(label=name,found=0,used=0) for name in POTIONS}
     farm_total=encounters=gear_spent=ejections=killed=movement=boss_losses=0
+    duels = boss_attempts = boss_wins = surface_count = 0
     cache_claims=0
     mine_total=empty_draws=0
     card_counts=dict.fromkeys(('Treasure','Monster','Enhancement','Nothing'),0)
@@ -314,6 +322,9 @@ def experiment(s, sample_limit=40, player_count=None, cancel=None, board=DEFAULT
         shop_turns=set()
         for row in rows:
             action=row['action']
+            duels += action == 'Challenge'
+            boss_attempts += bool(row.get('boss_attempt'))
+            boss_wins += bool(row.get('boss_defeated'))
             cache_claims+=row['cache_loot']>0
             empty_draws+=row['empty_draws']
             for card in row['cards']: card_counts[card]+=1
@@ -341,10 +352,10 @@ def experiment(s, sample_limit=40, player_count=None, cancel=None, board=DEFAULT
         escape_count += p['escaped']
         knocks += p['knockdowns']
         waits += sum(r['action']=='Wait' for r in rows)
-        penalties += sum(r['loot_penalty'] for r in rows if r['knockdown']=='Yes')
+        penalties += sum(r['loot_penalty'] for r in rows if r['knockdown']=='Yes' and not r.get('duel'))
         boss_losses += sum(r['loot_penalty'] for r in rows if r['boss_ejection'] or r['action']=='Killed by boss')
         discovered += p['visited']
-        lost += p['carried'] if not p['escaped'] else 0
+        lost += p['carried'] if not p['escaped'] or p.get('boss_slayer') else 0
         farm_total+=p['farm_actions'];mine_total+=p['mine_actions'];encounters+=p['encounters'];gear_spent+=p['equipment_spent']
         ejections+=p['boss_ejections'];killed+=p['killed'];movement+=p['movement_steps']
         for item in p['equipment']: equipment_counts[item]+=1
@@ -374,6 +385,9 @@ def experiment(s, sample_limit=40, player_count=None, cancel=None, board=DEFAULT
         if s.shared_decks:
             summary.update(sword=next((row['sword'] for row in reversed(rows) if 'sword' in row),0 if s.dice_rules else 1),
                            shield=next((row['shield'] for row in reversed(rows) if 'shield' in row),0))
+        if s.moving_boss:
+            surface_count += p['surface']
+            summary.update(surface=p['surface'], boss_slayer=p['boss_slayer'])
         players.append(summary)
         if index < sample_limit: samples.append(dict(**summary, rows=rows,boss_timeline=worlds[game_index]))
     no_survivors=0
@@ -453,6 +467,9 @@ def experiment(s, sample_limit=40, player_count=None, cancel=None, board=DEFAULT
                    first_bank_median=report['first_bank_median'],
                    avg_combat_energy=report['energy']['combat'],
                    regular_miner_rate=100*report['regular_miners']/count)
+    if s.player_duels or s.moving_boss:
+        metrics.update(duels=duels, boss_attempts=boss_attempts, boss_wins=boss_wins,
+                       surface_rate=100*surface_count/count if s.moving_boss else metrics['escape_rate'])
     for row in report['zones']:
         prefix=f"zone{row['zone']}_"
         metrics.update({prefix+'rate':100*row['entered']/count,
@@ -466,13 +483,14 @@ def experiment(s, sample_limit=40, player_count=None, cancel=None, board=DEFAULT
     for item in report['gear']:
         metrics[item['item'].lower()+'_use_rate']=100*item['used']/count
     return dict(settings=asdict(s), metrics=metrics, histogram=hist, timeline=turns,diagnostics=diagnostics,
+                enemy_odds=odds_table(s) if s.rolled_enemy_attacks else [],
                 development=report,
                 board=metadata,equipment_rates=[
                     dict(label=k,count=v,percent=100*v/count,used=gear_use_counts[k],
                          used_percent=100*gear_use_counts[k]/count,walking_energy_saved=gear_walking_savings[k]/count)
                     for k,v in equipment_counts.items()],
                 potion_rates=list(potion_counts.values()),
-                collapse_rates=[dict(zone=z,percent=100*sum(z in w[-1]['closed'] for w in worlds.values())/len(worlds)) for z in (1,2,3)],
+                collapse_rates=[dict(zone=z,percent=100*sum(bool(w) and z in w[-1]['closed'] for w in worlds.values())/len(worlds)) for z in (1,2,3)],
                 boss_example=worlds[0],
                 reach=[dict(zone=row['zone'],count=row['entered'],percent=100*row['entered']/count)
                        for row in report['zones']],

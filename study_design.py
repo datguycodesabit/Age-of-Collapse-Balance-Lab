@@ -19,6 +19,8 @@ NUMERIC=sorted({
     'upgrade_price','shop_gold_prices','field_starter_gear','shield_block_per_level',
     'sword_damage_bonus','bow_savings','grenade_savings','use_potions','energy_potion_gain',
     'canister_gain','lose_depth','boss_enabled','boss_start','boss_threshold','boss_loot_loss','boss_energy_hit',
+    'player_duels','moving_boss','boss_hp','boss_attack','boss_hoard',
+    'rolled_enemy_attacks','boss_challenge_pct',
 } | {f'{prefix}{z}' for z in ZONES for prefix in (
     'deck_monsters','deck_treasures','treasure_min','treasure_max','hp_min','hp_max','atk','bounty')})
 STARTER_AXES=[

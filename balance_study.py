@@ -48,7 +48,8 @@ def route_record(player, rows, depth, last_round, win):
                          if row['farm_zone'] and row['draw_count']>0})
     return dict(score=player.bank if player.escaped else 0, win=win, escaped=player.escaped,
                 entered=entry, mined=rows[first_mine]['turn'] if first_mine is not None else None,
-                banked=bank, surface=last_round if bank is not None and player.escaped else None,
+                banked=bank, surface=last_round if bank is not None and player.escaped
+                and zone_at(player.position) == 0 else None,
                 mined_zones=mined_zones,banked_zones=banked_zones,farm_draws=farm_draws)
 
 
@@ -78,12 +79,13 @@ def play(settings, layout, seed, game, rotating, adaptive, counts, examples, can
                                              position=match.players[seat].position,
                                              before=old,after=plan.goal,reason=plan.reason))
                     goals[seat]=plan.goal
-            action=adaptive_action(match,plans[key],actions,ROUTES[depth-1])
+            action=adaptive_action(match,plans[key],actions)
         else:
             action=choose(match,depth,selected or ROUTES[depth-1],actions)
         event=match._commit(dict(actor=seat,revision=match.revision,action=action))['event']
         if adapting:
-            changed=action['kind'] in ('Buy','Mine','Tonic') or event.get('banked_now')
+            changed=(action['kind'] in ('Buy','Mine','Tonic','AttackPlayer') or action.get('item') in ('Shovel','Energy Potion')
+                     or event.get('banked_now'))
             if changed or event.get('items_found'):
                 plans.pop(key,None)
     winners=match.observation(0)['winners']
