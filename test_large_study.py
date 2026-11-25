@@ -46,11 +46,13 @@ class LargeStudyTests(unittest.TestCase):
 
     def test_exact_cards_are_seeded_and_replay_while_old_ranges_still_work(self):
         base=self.preset['settings']
-        profile={'1':{'2':6,'4':6}}
+        count=self.settings.deck_treasures1
+        expected={2:count//2,4:count-count//2}
+        profile={'1':{str(value):copies for value,copies in expected.items()}}
         s=settings_from(dict(base,treasure_profiles=profile))
         pile=decks(s)[1]
         self.assertEqual(len(pile),50)
-        self.assertEqual(Counter(v for kind,_,v in pile if kind=='Treasure'),{2:6,4:6})
+        self.assertEqual(Counter(v for kind,_,v in pile if kind=='Treasure'),expected)
         self.assertEqual(decks(s)[2],decks(self.settings)[2])
         self.assertEqual([card for card in pile if card[0]!='Treasure'],
                          [card for card in decks(self.settings)[1] if card[0]!='Treasure'])
@@ -60,7 +62,7 @@ class LargeStudyTests(unittest.TestCase):
         self.assertEqual(match.decks,replay.decks)
         self.assertEqual(match.observation(0),replay.observation(0))
         with self.assertRaisesRegex(ValueError,'must sum'):
-            settings_from(dict(base,treasure_profiles={'1':{'2':11}}))
+            settings_from(dict(base,treasure_profiles={'1':{'2':count-1}}))
 
     def test_profile_and_treasure_count_axes_are_order_independent(self):
         exact=dict(key='treasure_profile1',values=[{'3':11}])

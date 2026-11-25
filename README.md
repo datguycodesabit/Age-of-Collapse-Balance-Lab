@@ -32,7 +32,13 @@ Follow one action through the code in this order.
    game and asks the bot policy to choose from the active seat's legal actions.
    Regular Dice runs use [`adaptive_route.py`](adaptive_route.py) to score
    sites by configured deck odds, Treasure values, travel, and combat risk.
-   Explicit fixed-depth runs remain available for strategy comparisons.
+   Its seeded lineup has Bankers, Delvers, Prospectors, Duelists, and Boss
+   Hunters, each with one of four traits. The Explorer shows the style and
+   trait for the selected replay. Explicit fixed-depth runs remain available
+   for strategy comparisons.
+   In **Game → Bot difficulty**, choose Easy through Expert for one to
+   four planning turns. Standard uses two turns. The policy compares
+   mining and banking lines through Energy refills and possible fights.
 2. [`agent_match.py`](agent_match.py) owns the players, shared decks, and turn
    order. `submit()` checks the actor, revision, and action. `_commit()` records
    each accepted action, then advances the turn after an end-turn command,
@@ -108,6 +114,10 @@ round 1. You draw from the three shared decks by mining at marked sites.
 A regular mine costs 1 Energy for one card. A farm costs 2 Energy for two
 cards. Clearing an adjacent rock uses the regular mine cost. Treasure values, each zone's HP
 range and attack, gear prices, and the defeat pushback are editable.
+
+The default Dice and rolled-combat presets have 15 Treasure cards worth
+4–5 gold in Zone 1, 23 worth 3–6 in Zone 2, and 28 worth 8–12 in Zone 3.
+The fixed-counter comparison loads its historical deck configuration.
 
 Fights resolve one d6 exchange at a time. Swords add damage, and shields
 absorb Energy damage from surviving monsters. Losing a fight drops the
@@ -208,8 +218,8 @@ axis uses changes in walking steps from the selected map's farm. Load saved
 map JSON files or generate connected maps with the same per-zone site counts.
 Preview shows the candidate workload, invalid choices and actual farm distances.
 
-An exact Treasure axis takes a JSON list such as `[{"2":6,"4":6}, {"3":12}, null]`.
-The first two profiles each contain 12 Treasure cards with the same mean gold
+An exact Treasure axis takes a JSON list such as `[{"2":5,"3":5,"4":5}, {"3":15}, null]`.
+The first two profiles each contain 15 Treasure cards with the same mean gold
 value. `null` uses the min/max range. The zone's Monster and fixed Item counts
 leave the rest of its 50 cards available for Treasure and Nothing. Applying a
 profile keeps exact values through simulation, settings export and replay.

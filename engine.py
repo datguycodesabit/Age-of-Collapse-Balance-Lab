@@ -10,7 +10,7 @@ from model import (Settings, Board, DEFAULT_BOARD, GEAR, POTIONS, GATES,
 import zone_decks
 import dice_rules
 from enemy_profiles import odds_table
-from adaptive_route import adaptive_action, pick_plan
+from adaptive_route import adaptive_action, bot_lineup, pick_plan
 from development_metrics import DevelopmentMetrics
 
 METRICS = {
@@ -250,11 +250,14 @@ def shared_game(s, board, game_index, players, cancel, depths=None):
         match._commit(dict(actor=actor,revision=match.revision,action=action))
 
     results = []
-    for player, rows in zip(match.players, match.logs):
+    personalities = bot_lineup(seed, players) if s.dice_rules and depths is None else ()
+    for seat, (player, rows) in enumerate(zip(match.players, match.logs)):
         for _, turn_rows in itertools.groupby(rows, key=lambda row: row['turn']):
             for step, row in enumerate(turn_rows, start=1):
                 row['step'] = step
         result = player_result(player, rows, match.closed)
+        if personalities:
+            result.update(bot_style=personalities[seat].style, bot_trait=personalities[seat].trait)
         if s.dice_rules:
             # Forfeited final banks remain visible in replay, but cannot score.
             result['score'] = player.bank if player.escaped else 0
@@ -382,6 +385,8 @@ def experiment(s, sample_limit=40, player_count=None, cancel=None, board=DEFAULT
                        first_bank_round=first_bank_round)
         summary.update(potions_found=len(p['potions_found']),potions_used=len(p['potions_used']),
                        gear_used=p['gear_used'])
+        if 'bot_style' in p:
+            summary.update(bot_style=p['bot_style'], bot_trait=p['bot_trait'])
         if s.shared_decks:
             summary.update(sword=next((row['sword'] for row in reversed(rows) if 'sword' in row),0 if s.dice_rules else 1),
                            shield=next((row['shield'] for row in reversed(rows) if 'shield' in row),0))

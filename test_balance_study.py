@@ -3,7 +3,7 @@ from dataclasses import replace
 import json
 import unittest
 
-from adaptive_route import adaptive_action, pick_plan
+from adaptive_route import STYLES, Plan, adaptive_action, bot_lineup, mine_line, pick_plan
 from agent_match import AgentMatch
 from balance_study import analyze, lineup, route_record, summarize_routes
 from engine import board_from, settings_from, shared_game
@@ -25,6 +25,81 @@ class StrategyStudyTests(unittest.TestCase):
                 self.assertEqual(len(depths),5)
                 anchors.add(anchor)
             self.assertEqual(len(anchors),5)
+
+    def test_personalities_rotate_and_restore_the_next_decision(self):
+        lineups = [bot_lineup(seed, 5) for seed in range(30)]
+        self.assertTrue(all(len({profile.style for profile in lineup}) == 5 for lineup in lineups))
+        self.assertEqual(len({profile for lineup in lineups for profile in lineup}), 20)
+        self.assertTrue(all(len({profile.style for profile in lineup[:3]}) == 3 for lineup in lineups))
+        self.assertEqual(len(set(bot_lineup(42, 8))), 8)
+
+        match = AgentMatch(dict(self.preset['settings'], bot_lookahead=4), self.preset['board'])
+        action = adaptive_action(match, pick_plan(match), match.legal_actions(match.active))
+        self.assertTrue(match.submit(dict(actor=match.active, revision=match.revision, action=action))['accepted'])
+        saved = json.loads(json.dumps(match.serialize()))
+        restored = AgentMatch.restore(saved)
+        self.assertEqual(restored.settings.bot_lookahead, 4)
+        for game in (match, restored):
+            observation = game.serialize()
+            choices = game.legal_actions(game.active)
+            decision = adaptive_action(game, pick_plan(game), choices)
+            self.assertIn(decision, choices)
+            self.assertEqual(observation, game.serialize())
+        self.assertEqual(pick_plan(match), pick_plan(restored))
+        self.assertEqual(adaptive_action(match, pick_plan(match), match.legal_actions(match.active)),
+                         adaptive_action(restored, pick_plan(restored), restored.legal_actions(restored.active)))
+
+    def test_lookahead_credits_a_refill_and_compares_risk_to_a_safe_return(self):
+        for difficulty in (0, 5, 1.5):
+            with self.assertRaises(ValueError):
+                settings_from(dict(self.preset['settings'], bot_lookahead=difficulty))
+        match = AgentMatch(self.preset['settings'], self.preset['board'])
+        player = match.players[0]
+        banker = STYLES[0]
+        easy = mine_line(match.settings, player, banker, 1, 2, 3, 2, 2, 1, 1, 0, 3)
+        deeper = mine_line(match.settings, player, banker, 2, 2, 3, 2, 2, 1, 1, 0, 3)
+        self.assertEqual(deeper[1], 1)
+        self.assertGreater(deeper[0], easy[0])
+        clear = mine_line(match.settings, player, banker, 1, 2, 1, 1, 2, 1, 1, 0, 3)
+        danger = mine_line(match.settings, player, banker, 1, 2, 1, 1, 2, 1, 1, 1, 3)
+        self.assertEqual(clear[1], 0)
+        self.assertGreater(clear[0], danger[0])
+
+    def test_banker_returns_earlier_and_duelist_can_interrupt_mining(self):
+        rolled = json.loads(PRESET.with_name('rolled_combat_playtest.json').read_text())
+        for style in ('Banker', 'Delver', 'Duelist', 'Prospector'):
+            seed = next(seed for seed in range(100) if bot_lineup(seed, 5)[0].style == style)
+            match = AgentMatch(dict(rolled['settings'], seed=seed), rolled['board'])
+            player = match.players[0]
+            player.position = (0, 2)
+            player.energy = 10
+            if style in ('Banker', 'Delver'):
+                player.loot = 7
+                player.treasures = [4, 3]
+                self.assertEqual(pick_plan(match).goal == match.board.start, style == 'Banker')
+            else:
+                match.players[1].position = (1, 2)
+                match.players[1].energy = 5
+                actions = match.legal_actions(0)
+                action = adaptive_action(match, Plan(player.position, 'Test farm'), actions)
+                self.assertIn(action, actions)
+                self.assertEqual(action['kind'], 'AttackPlayer' if style == 'Duelist' else 'Mine')
+
+    def test_boss_hunter_prepares_for_a_favorable_fight(self):
+        rolled = json.loads(PRESET.with_name('rolled_combat_playtest.json').read_text())
+        for style in ('Boss Hunter', 'Prospector'):
+            seed = next(seed for seed in range(100) if bot_lineup(seed, 5)[0].style == style)
+            match = AgentMatch(dict(rolled['settings'], seed=seed), rolled['board'])
+            match.round = match.settings.boss_start - 2
+            player = match.players[0]
+            player.position = (1, 8)
+            player.energy = 10
+            player.sword = player.shield = 3
+            player.equipment.add('Boots')
+            actions = match.legal_actions(0)
+            action = adaptive_action(match, Plan(player.position, 'Test mine'), actions)
+            self.assertIn(action, actions)
+            self.assertEqual(action['kind'], 'Move' if style == 'Boss Hunter' else 'Mine')
 
     def test_adaptive_policy_switches_when_boss_and_return_change(self):
         match=AgentMatch(self.preset['settings'],self.preset['board'])

@@ -17,6 +17,21 @@ from tune_turn_length import PRESET
 
 
 class ExperimentTests(unittest.TestCase):
+    def test_dice_playtest_presets_mine_all_three_zones(self):
+        for filename in ('deep_upside_no_cache.json', 'rolled_combat_playtest.json'):
+            with self.subTest(preset=filename):
+                preset = json.loads(PRESET.with_name(filename).read_text())
+                settings = settings_from({**preset['settings'], 'runs': 20, 'seed': 20271125})
+                self.assertEqual((settings.deck_monsters1, settings.deck_monsters2, settings.deck_monsters3),
+                                 (10, 13, 17))
+                result = experiment(settings, board=board_from(preset['board']), sample_limit=5)
+                draws = [zone['draws'] for zone in result['development']['zones']]
+                self.assertGreater(sum(draws), 0)
+                self.assertGreaterEqual(min(draws) / sum(draws), 0.15, draws)
+                self.assertEqual({seat['bot_style'] for seat in result['samples']},
+                                 {'Banker', 'Delver', 'Prospector', 'Duelist', 'Boss Hunter'})
+                self.assertTrue(all(seat['bot_trait'] for seat in result['samples']))
+
     def test_all_search_presets_generate_distinct_legal_variants(self):
         self.assertEqual(len(CATALOG),20)
         preset=json.loads(PRESET.read_text())

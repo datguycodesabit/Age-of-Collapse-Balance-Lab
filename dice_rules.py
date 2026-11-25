@@ -503,23 +503,26 @@ def combat_choice(match, actions, returning=False):
         threshold = s.boss_challenge_pct / 100 if s.rolled_enemy_attacks else .65
         if player.bank + s.boss_hoard >= leader and boss_odds(s, player, player.energy-1) >= threshold:
             return dict(kind='AttackBoss')
-    if not returning:
-        sword, bow, grenade = attack_bonuses(player, s)
-        best = None
-        for action in actions:
-            if action['kind'] != 'AttackPlayer':
-                continue
-            other = match.players[action['target']]
-            other_sword = other.sword + s.sword_damage_bonus if other.sword else 0
-            chance = duel_win_chance(player.energy-1, other.energy,
-                                    sword+bow-shield_block(s, other.shield),
-                                    other_sword-shield_block(s, player.shield),
-                                    grenade, 0)
-            if chance >= .80 and (best is None or chance > best[0]):
-                best = (chance, action)
-        if best is not None:
-            return best[1]
-    return None
+    return None if returning else duel_choice(match, actions, .80)
+
+
+def duel_choice(match, actions, threshold):
+    settings = match.settings
+    player = match.players[match.active]
+    sword, bow, grenade = attack_bonuses(player, settings)
+    best = None
+    for action in actions:
+        if action['kind'] != 'AttackPlayer':
+            continue
+        other = match.players[action['target']]
+        other_sword = other.sword + settings.sword_damage_bonus if other.sword else 0
+        chance = duel_win_chance(player.energy-1, other.energy,
+                                sword+bow-shield_block(settings, other.shield),
+                                other_sword-shield_block(settings, player.shield),
+                                grenade, 0)
+        if chance >= threshold and (best is None or chance > best[0]):
+            best = (chance, action)
+    return best[1] if best else None
 
 
 def mine(match,p,rng,action):

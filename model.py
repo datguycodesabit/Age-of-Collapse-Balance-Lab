@@ -101,6 +101,7 @@ class Settings:
     canister_gain: int = 1
     energy_potion_gain: int = 3
     dice_rules: int = 0
+    bot_lookahead: int = 2
     hp_min1: int = 2
     hp_max1: int = 4
     hp_min2: int = 4
@@ -134,6 +135,7 @@ class Settings:
 FIELDS = [
     ('Game','turns','Turn limit'),('Game','players','Players per game'),
     ('Game','runs','Monte Carlo games'),('Game','seed','Random seed'),
+    ('Game','bot_lookahead','Bot difficulty (planning turns)'),
     ('Strategy','retreat_start','Retreat on/after turn'),
     ('Strategy','adaptive_retreat','Energy-aware retreat (1=yes, 0=no)'),
     ('Strategy','retreat_slack','Turns of return slack'),
@@ -886,6 +888,8 @@ def validate(s):
         raise ValueError('Dice rules require shared zone decks.')
     if s.dice_rules and s.cap>10:
         raise ValueError('Dice rules cap Energy at 10.')
+    if not 1 <= s.bot_lookahead <= 4:
+        raise ValueError('Bot difficulty must be 1–4 planning turns.')
     if s.player_duels not in (0, 1) or s.moving_boss not in (0, 1):
         raise ValueError('Player duels and moving boss must be 0 or 1.')
     if (s.player_duels or s.moving_boss) and not s.dice_rules:

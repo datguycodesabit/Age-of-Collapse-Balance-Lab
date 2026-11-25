@@ -57,7 +57,6 @@ def play(settings, layout, seed, game, rotating, adaptive, counts, examples, can
          collect=None, assignment=None, policies=None):
     match=AgentMatch(dict(settings,seed=seed),layout)
     depths,anchor=assignment or lineup(game,rotating,len(match.players))
-    plans={}
     goals={}
     while not match.complete:
         if cancel and cancel():
@@ -68,26 +67,19 @@ def play(settings, layout, seed, game, rotating, adaptive, counts, examples, can
         selected=policies.get(depth) if policies and seat!=anchor else None
         adapting=adaptive and seat!=anchor and selected is None
         if adapting:
-            key=match.round,seat
-            if key not in plans:
-                plan=plans[key]=pick_plan(match)
-                old=goals.get(seat,mining_goal(match,match.players[seat],depth) or match.board.start)
-                if old!=plan.goal:
-                    counts[plan.reason]+=1
-                    if len(examples)<12:
-                        examples.append(dict(seed=seed,round=match.round,seat=seat+1,
-                                             position=match.players[seat].position,
-                                             before=old,after=plan.goal,reason=plan.reason))
-                    goals[seat]=plan.goal
-            action=adaptive_action(match,plans[key],actions)
+            plan=pick_plan(match)
+            old=goals.get(seat,mining_goal(match,match.players[seat],depth) or match.board.start)
+            if old!=plan.goal:
+                counts[plan.reason]+=1
+                if len(examples)<12:
+                    examples.append(dict(seed=seed,round=match.round,seat=seat+1,
+                                         position=match.players[seat].position,
+                                         before=old,after=plan.goal,reason=plan.reason))
+                goals[seat]=plan.goal
+            action=adaptive_action(match,plan,actions)
         else:
             action=choose(match,depth,selected or ROUTES[depth-1],actions)
-        event=match._commit(dict(actor=seat,revision=match.revision,action=action))['event']
-        if adapting:
-            changed=(action['kind'] in ('Buy','Mine','Tonic','AttackPlayer') or action.get('item') in ('Shovel','Energy Potion')
-                     or event.get('banked_now'))
-            if changed or event.get('items_found'):
-                plans.pop(key,None)
+        match._commit(dict(actor=seat,revision=match.revision,action=action))
     winners=match.observation(0)['winners']
     result={depth: [] for depth in (1,2,3)}
     for seat,(player,depth) in enumerate(zip(match.players,depths)):

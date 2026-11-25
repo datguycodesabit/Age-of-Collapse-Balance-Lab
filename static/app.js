@@ -7,6 +7,7 @@ const monsterControls = [];
 const labels = {};
 const limits = {
   turns:[1,60,1],players:[1,20,1],runs:[1,5000,1],seed:[0,9007199254740991,1],
+  bot_lookahead:[1,4,1],
   start_energy:[0,100,1],gain:[0,100,1],cap:[1,100,1],lose_depth:[0,3,1],lose_loot:[0,20,1],
   hp1:[1,40,1],hp2:[1,40,1],hp3:[1,60,1],atk1:[0,15,1],atk2:[0,15,1],atk3:[0,15,1],
   avg_roll:[0.5,12,0.5],delve:[1,20,1],retreat:[1,20,1],retreat_start:[1,61,1],
@@ -30,6 +31,7 @@ const limits = {
   adaptive_retreat:[0,1,1],retreat_slack:[0,10,1],farm_detour_limit:[-1,60,1]
 };
 const priorities=['Balanced','Farm and profit','Deep expedition','Safe return','Mixed, price-aware shoppers'];
+const difficulties=['Easy · 1 turn','Standard · 2 turns','Hard · 3 turns','Expert · 4 turns'];
 for(const z of [1,2,3]){
   limits['hp_min'+z]=limits['hp_max'+z]=[1,100,1];
   limits['treasure_min'+z]=limits['treasure_max'+z]=[0,50,1];
@@ -39,6 +41,7 @@ for(const z of [1,2,3]){
 const help = {
   turns:'More turns give players more time to get back.',players:'Players have separate discoveries but share one boss schedule per game.',
   runs:'More games reduce sampling noise but take longer.',seed:'Same seed and settings reproduce the same results.',
+  bot_lookahead:'1 Easy, 2 Standard, 3 Hard, 4 Expert. Counts the current turn and the future refills an adaptive Dice bot can plan through.',
   start_energy:'Starting pool in dice rules, limited by the Energy cap.',
   gain:'Energy added each later round in dice rules. Earlier modes also use this for round 1.',
   cap:'Higher capacity lets players absorb larger combat costs.',
@@ -123,7 +126,7 @@ function showActiveSettings(dice, shared, fullMove){
     field.hidden=['dice_rules','shared_decks'].includes(key)
       || dice&&(earlierDiceFields.has(key)||earlierGear||fullMove&&diceMovementFields.has(key)
         || !fullMove&&key==='boots_move_range')
-      || !dice&&(group==='Dice rules'||key==='start_energy')
+      || !dice&&(group==='Dice rules'||['start_energy','bot_lookahead'].includes(key))
       || movingBoss&&key==='boss_threshold'
       || !movingBoss&&['boss_hp','boss_attack','boss_hoard'].includes(key)
       || (!movingBoss||!rolled)&&key==='boss_challenge_pct'
@@ -305,12 +308,16 @@ function buildSettings(){
       labels[key]=label;
       const [min,max,step]=limits[key];
       const field=document.createElement('div');field.className='field';
-      if(key==='gear_priority'){
+      if(key==='gear_priority'||key==='bot_lookahead'){
         const select=document.createElement('select');
         select.id='setting-'+key;
         select.setAttribute('aria-label',label);
-        priorities.forEach((name,i)=>select.add(new Option(name,i)));
-        field.innerHTML='<label for="setting-gear_priority">Shopping priority</label><p class="field-help">'+help[key]+'</p>';
+        select.required=true;
+        select.setAttribute('aria-describedby','help-'+key);
+        const choices=key==='bot_lookahead'?difficulties:priorities;
+        choices.forEach((name,i)=>select.add(new Option(name,min+i)));
+        select.value=config.defaults[key];
+        field.innerHTML=`<label for="setting-${key}">${esc(label)}</label><p id="help-${key}" class="field-help">${help[key]}</p>`;
         field.insertBefore(select,field.lastChild);
         select.onchange=markDirty;
         controls.set(key,{number:select,slider:null});
@@ -512,7 +519,8 @@ function renderResults(){
     ...(s.moving_boss?[metricCard('Boss fights',fmt(m.boss_attempts,0),`${m.boss_wins} boss defeats`)]:[]),
   ].join('');
   const mode=s.dice_rules?'Dice':s.shared_decks?'Shared decks':'Independent draws';
-  $('run-info').textContent=`${fmt(m.games,0)} games × ${s.players} players · ${s.turns} rounds · seed ${s.seed} · ${mode} · default bots`;
+  const botInfo=s.dice_rules?`${s.bot_lookahead}-turn bot lookahead`:'default bots';
+  $('run-info').textContent=`${fmt(m.games,0)} games × ${s.players} players · ${s.turns} rounds · seed ${s.seed} · ${mode} · ${botInfo}`;
   $('deck-item-stats').textContent=Object.entries(m.item_counts??{})
     .filter(([,count])=>count>0).map(([name,count])=>name+' ×'+count).join(' · ');
   const drawn=Object.values(m.card_counts).reduce((sum,count)=>sum+count,0);
@@ -551,7 +559,7 @@ function renderResults(){
     $('compare-current').textContent=`Current · seed ${s.seed}`;
     $('compare-rows').innerHTML=rows.map(([label,key,digits,unit])=>`<tr><th scope="row">${label}</th><td>${fmt(previous.metrics[key],digits)}${unit}</td><td>${fmt(m[key],digits)}${unit}</td></tr>`).join('');
   }
-  $('sample-picker').innerHTML=result.samples.map((p,i)=>`<option value="${i}">Game ${p.game}, player ${p.player} · ${p.score} gold · ${playerOutcome(p)}</option>`).join('');
+  $('sample-picker').innerHTML=result.samples.map((p,i)=>`<option value="${i}">Game ${p.game}, player ${p.player}${p.bot_style?' · '+esc(p.bot_style):''} · ${p.score} gold · ${playerOutcome(p)}</option>`).join('');
   $('export-results').disabled=!result.players.length;
   renderSample();
 }
@@ -793,13 +801,14 @@ function renderSample(){
   if(p.sword)gear.push('Sword '+p.sword);
   if(p.shield)gear.push('Shield '+p.shield);
   $('sample-summary').innerHTML=`<b>${playerOutcome(p)}</b> · ${p.score} gold scored
+    ${p.bot_style?`<p class="small muted">${esc(p.bot_style)} · ${esc(p.bot_trait)}</p>`:''}
     <p class="small muted">${p.first_bank_round==null?'No deposit':`First bank: round ${p.first_bank_round}`} · ${p.knockdowns} knockdowns · ${p.encounters} cards</p>
     ${gear.length?`<p class="small muted">${esc(gear.join(', '))} · ${p.equipment_spent} gold spent</p>`:''}`;
   const start=(p.game-1)*result.settings.players;
   const standings=result.players.slice(start,start+result.settings.players)
     .sort((a,b)=>b.escaped-a.escaped||b.score-a.score||a.player-b.player);
   $('game-standings').innerHTML=standings.map(player=>
-    `<li>Player ${player.player} · ${player.score} score · ${playerOutcome(player)}${player.winner?' · Winner':''}</li>`
+    `<li>Player ${player.player}${player.bot_style?' · '+esc(player.bot_style):''} · ${player.score} score · ${playerOutcome(player)}${player.winner?' · Winner':''}</li>`
   ).join('');
   $('turn-rows').innerHTML=p.rows.map(r=>`<tr><td>${r.turn} / ${r.step}</td><td>${r.action}</td><td>(${r.position_in}) → (${r.position_out})</td><td>${r.distance_home??'—'}</td><td>${esc(r.card)}</td><td>${r.end_energy}</td><td>${r.loot_out}</td><td>${r.bank}</td></tr>`).join('');
   renderReplay();
